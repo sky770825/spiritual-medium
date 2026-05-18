@@ -1,0 +1,97 @@
+{
+  "version": 1,
+  "brand": "spiritual-medium",
+  "updatedAt": "2026-05-18T00:00:00.000Z",
+  "rules": [
+    {
+      "id": "welcome-follow",
+      "enabled": true,
+      "trigger": "follow",
+      "priority": 100,
+      "name": "加入好友歡迎訊息",
+      "keywords": [],
+      "response": {
+        "type": "text",
+        "text": "謝謝你加入宇宙通靈師・宇瑒老師。若想預約諮詢，請回覆想了解的服務項目、方便時段，以及你想詢問的主題。"
+      }
+    },
+    {
+      "id": "booking-flex",
+      "enabled": true,
+      "trigger": "message",
+      "priority": 90,
+      "name": "預約諮詢",
+      "keywords": ["預約", "預定", "諮詢", "咨詢", "報名", "時間", "*預約*", "*諮詢*"],
+      "response": {
+        "type": "flex",
+        "altText": "宇宙通靈師預約諮詢",
+        "title": "預約宇宙通靈諮詢",
+        "body": "請留下想預約的服務項目、方便日期時間，以及想詢問的主題。服務時間為 10:00 - 22:00。",
+        "imageUrl": "https://spiritual-medium-site.vercel.app/assets/images/hero-cosmic.jpg",
+        "buttons": [
+          {
+            "label": "前往網站",
+            "type": "uri",
+            "value": "https://spiritual-medium-site.vercel.app"
+          },
+          {
+            "label": "我要預約",
+            "type": "message",
+            "value": "我要預約諮詢"
+          }
+        ]
+      }
+    },
+    {
+      "id": "services-flex",
+      "enabled": true,
+      "trigger": "message",
+      "priority": 80,
+      "name": "服務項目",
+      "keywords": ["服務", "項目", "價格", "收費", "費用", "內容", "*服務*", "*費用*"],
+      "response": {
+        "type": "flex",
+        "altText": "宇宙通靈師服務項目",
+        "title": "服務項目",
+        "body": "目前提供靈魂對話、能量療癒、命運指引、陰陽平衡。你可以回覆想了解的項目，我會協助安排適合的諮詢方式。",
+        "imageUrl": "https://spiritual-medium-site.vercel.app/assets/images/medium-portrait.jpg",
+        "buttons": [
+          {
+            "label": "查看服務",
+            "type": "uri",
+            "value": "https://spiritual-medium-site.vercel.app/#services"
+          },
+          {
+            "label": "我要預約",
+            "type": "message",
+            "value": "我要預約諮詢"
+          }
+        ]
+      }
+    },
+    {
+      "id": "test-text",
+      "enabled": true,
+      "trigger": "message",
+      "priority": 70,
+      "name": "連線測試",
+      "keywords": ["測試", "test"],
+      "response": {
+        "type": "text",
+        "text": "LINE webhook 已連線成功。"
+      }
+    },
+    {
+      "id": "default-fallback",
+      "enabled": true,
+      "trigger": "fallback",
+      "priority": 0,
+      "name": "未命中預設回覆",
+      "keywords": [],
+      "response": {
+        "type": "text",
+        "text": "我收到你的訊息了。宇宙通靈師會在服務時間 10:00 - 22:00 回覆你。若想預約，請留下服務項目、方便時段與想詢問的主題。"
+      }
+    }
+  ]
+}

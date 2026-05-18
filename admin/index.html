@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>宇宙通靈師後台</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      --ink: #1f1b2d;
+      --muted: #6d657c;
+      --line: #ded8e8;
+      --panel: #ffffff;
+      --page: #f7f4fb;
+      --accent: #6b3fa0;
+      --accent-dark: #4d2f74;
+      --gold: #b98b18;
+      --danger: #b42318;
+      --success: #177245;
+      --shadow: 0 14px 34px rgba(31, 27, 45, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", system-ui, sans-serif;
+      background: var(--page);
+      color: var(--ink);
+    }
+
+    button,
+    input,
+    textarea,
+    select {
+      font: inherit;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 320px minmax(0, 1fr);
+    }
+
+    .sidebar {
+      background: #211634;
+      color: #f5efff;
+      padding: 22px;
+      min-height: 100vh;
+      position: sticky;
+      top: 0;
+      align-self: start;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .brand h1 {
+      font-size: 20px;
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .brand span {
+      display: block;
+      color: #c8b7e4;
+      font-size: 13px;
+      font-weight: 400;
+      margin-top: 4px;
+    }
+
+    .status {
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(255, 255, 255, 0.08);
+      padding: 12px;
+      border-radius: 8px;
+      color: #e9ddfb;
+      font-size: 13px;
+      line-height: 1.6;
+      margin-bottom: 18px;
+      word-break: break-word;
+    }
+
+    .login {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .login input {
+      width: 100%;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border-radius: 8px;
+      padding: 11px 12px;
+      outline: none;
+    }
+
+    .login input::placeholder {
+      color: #bcaed3;
+    }
+
+    .rule-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .rule-tab {
+      width: 100%;
+      text-align: left;
+      border-radius: 8px;
+      padding: 11px 12px;
+      color: #f6f1ff;
+      background: rgba(255, 255, 255, 0.08);
+      display: grid;
+      gap: 3px;
+    }
+
+    .rule-tab.active {
+      background: #f5efff;
+      color: var(--ink);
+    }
+
+    .rule-tab small {
+      color: inherit;
+      opacity: 0.72;
+    }
+
+    .main {
+      padding: 24px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .toolbar h2 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 9px 13px;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .button.secondary {
+      background: #ebe5f4;
+      color: var(--ink);
+    }
+
+    .button.warning {
+      background: #f7e8e6;
+      color: var(--danger);
+    }
+
+    .button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .button svg {
+      width: 17px;
+      height: 17px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      padding: 18px;
+    }
+
+    .panel h3 {
+      margin: 0 0 14px;
+      font-size: 17px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .field {
+      display: grid;
+      gap: 7px;
+      margin-bottom: 14px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    .field label {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .field input,
+    .field textarea,
+    .field select {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      color: var(--ink);
+      padding: 10px 11px;
+      outline: none;
+    }
+
+    .field textarea {
+      min-height: 92px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    .field input:focus,
+    .field textarea:focus,
+    .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(107, 63, 160, 0.12);
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .toggle-row input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+    }
+
+    .button-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .button-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 132px minmax(0, 1.4fr);
+      gap: 10px;
+    }
+
+    .preview {
+      display: grid;
+      gap: 14px;
+    }
+
+    .phone {
+      width: min(100%, 360px);
+      border: 1px solid #d8d0e7;
+      border-radius: 8px;
+      background: #eef3f8;
+      padding: 14px;
+      margin: 0 auto;
+    }
+
+    .bubble {
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #d8d0e7;
+    }
+
+    .bubble img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 20 / 13;
+      object-fit: cover;
+      background: #ece5f5;
+    }
+
+    .bubble-body {
+      padding: 14px;
+    }
+
+    .bubble-title {
+      color: #2d1b4e;
+      font-weight: 700;
+      font-size: 17px;
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    .bubble-text {
+      color: #5f536f;
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .bubble-actions {
+      display: grid;
+      gap: 8px;
+      padding: 0 14px 14px;
+    }
+
+    .bubble-actions span {
+      display: block;
+      text-align: center;
+      border-radius: 8px;
+      background: #6b3fa0;
+      color: #fff;
+      padding: 9px;
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .text-preview {
+      width: min(100%, 360px);
+      margin: 0 auto;
+      background: #fff;
+      border: 1px solid #d8d0e7;
+      border-radius: 8px;
+      padding: 13px 14px;
+      color: var(--ink);
+      line-height: 1.7;
+      white-space: pre-wrap;
+    }
+
+    .test-box {
+      display: grid;
+      gap: 10px;
+    }
+
+    .notice {
+      border-radius: 8px;
+      padding: 11px 12px;
+      font-size: 14px;
+      line-height: 1.6;
+      background: #efe9f7;
+      color: var(--ink);
+      margin-bottom: 14px;
+      display: none;
+    }
+
+    .notice.error {
+      background: #fbecea;
+      color: var(--danger);
+    }
+
+    .notice.success {
+      background: #e7f5ee;
+      color: var(--success);
+    }
+
+    [hidden] {
+      display: none !important;
+    }
+
+    @media (max-width: 980px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        min-height: auto;
+      }
+
+      .grid,
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .button-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <h1>宇宙通靈師<span>LINE 回覆後台</span></h1>
+        <i data-lucide="sparkles"></i>
+      </div>
+
+      <div class="login">
+        <input id="adminPassword" type="password" autocomplete="current-password" placeholder="管理密碼">
+        <button class="button" id="loadButton" type="button">
+          <i data-lucide="log-in"></i>
+          登入讀取
+        </button>
+      </div>
+
+      <div class="status" id="statusBox">尚未載入規則。</div>
+      <button class="button secondary" id="addRuleButton" type="button" disabled>
+        <i data-lucide="plus"></i>
+        新增規則
+      </button>
+      <div class="rule-list" id="ruleList"></div>
+    </aside>
+
+    <main class="main">
+      <div class="toolbar">
+        <h2>關鍵字與 Flex 訊息</h2>
+        <div class="actions">
+          <button class="button secondary" id="duplicateButton" type="button" disabled>
+            <i data-lucide="copy"></i>
+            複製
+          </button>
+          <button class="button warning" id="deleteButton" type="button" disabled>
+            <i data-lucide="trash-2"></i>
+            刪除
+          </button>
+          <button class="button" id="saveButton" type="button" disabled>
+            <i data-lucide="save"></i>
+            儲存上線
+          </button>
+        </div>
+      </div>
+
+      <div class="notice" id="noticeBox"></div>
+
+      <div class="grid">
+        <section class="panel" id="editorPanel">
+          <h3>規則設定</h3>
+          <div class="toggle-row">
+            <input id="enabled" type="checkbox">
+            <label for="enabled">啟用這則回覆</label>
+          </div>
+
+          <div class="form-grid">
+            <div class="field">
+              <label for="name">規則名稱</label>
+              <input id="name" type="text" placeholder="例如：預約諮詢">
+            </div>
+            <div class="field">
+              <label for="priority">優先序</label>
+              <input id="priority" type="number" min="0" max="999" step="1">
+            </div>
+            <div class="field">
+              <label for="trigger">觸發類型</label>
+              <select id="trigger">
+                <option value="message">關鍵字訊息</option>
+                <option value="follow">加入好友</option>
+                <option value="fallback">未命中預設</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="responseType">回覆類型</label>
+              <select id="responseType">
+                <option value="flex">Flex 卡片</option>
+                <option value="text">純文字</option>
+              </select>
+            </div>
+            <div class="field full" id="keywordsField">
+              <label for="keywords">關鍵字</label>
+              <textarea id="keywords" placeholder="可用逗號或換行分隔，例如：預約, *諮詢*"></textarea>
+            </div>
+            <div class="field full" id="textField">
+              <label for="text">文字內容</label>
+              <textarea id="text"></textarea>
+            </div>
+            <div class="field full" id="flexTitleField">
+              <label for="flexTitle">Flex 標題</label>
+              <input id="flexTitle" type="text">
+            </div>
+            <div class="field full" id="flexBodyField">
+              <label for="flexBody">Flex 內容</label>
+              <textarea id="flexBody"></textarea>
+            </div>
+            <div class="field full" id="imageField">
+              <label for="imageUrl">圖片網址</label>
+              <input id="imageUrl" type="url" placeholder="https://...">
+            </div>
+            <div class="field full" id="altTextField">
+              <label for="altText">LINE 通知文字</label>
+              <input id="altText" type="text">
+            </div>
+          </div>
+
+          <div id="buttonsField">
+            <h3>按鈕</h3>
+            <div class="button-list" id="buttonList"></div>
+          </div>
+        </section>
+
+        <aside class="preview">
+          <section class="panel">
+            <h3>LINE 預覽</h3>
+            <div id="previewBox"></div>
+          </section>
+
+          <section class="panel">
+            <h3>關鍵字測試</h3>
+            <div class="test-box">
+              <div class="field">
+                <label for="testKeyword">輸入使用者訊息</label>
+                <input id="testKeyword" type="text" placeholder="例如：我想預約">
+              </div>
+              <button class="button secondary" id="testButton" type="button">
+                <i data-lucide="search"></i>
+                測試命中
+              </button>
+              <div class="status" id="testResult">尚未測試。</div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const elements = {
+      adminPassword: document.querySelector("#adminPassword"),
+      loadButton: document.querySelector("#loadButton"),
+      statusBox: document.querySelector("#statusBox"),
+      ruleList: document.querySelector("#ruleList"),
+      addRuleButton: document.querySelector("#addRuleButton"),
+      duplicateButton: document.querySelector("#duplicateButton"),
+      deleteButton: document.querySelector("#deleteButton"),
+      saveButton: document.querySelector("#saveButton"),
+      noticeBox: document.querySelector("#noticeBox"),
+      enabled: document.querySelector("#enabled"),
+      name: document.querySelector("#name"),
+      priority: document.querySelector("#priority"),
+      trigger: document.querySelector("#trigger"),
+      responseType: document.querySelector("#responseType"),
+      keywords: document.querySelector("#keywords"),
+      text: document.querySelector("#text"),
+      flexTitle: document.querySelector("#flexTitle"),
+      flexBody: document.querySelector("#flexBody"),
+      imageUrl: document.querySelector("#imageUrl"),
+      altText: document.querySelector("#altText"),
+      buttonList: document.querySelector("#buttonList"),
+      previewBox: document.querySelector("#previewBox"),
+      testKeyword: document.querySelector("#testKeyword"),
+      testButton: document.querySelector("#testButton"),
+      testResult: document.querySelector("#testResult"),
+      keywordsField: document.querySelector("#keywordsField"),
+      textField: document.querySelector("#textField"),
+      flexTitleField: document.querySelector("#flexTitleField"),
+      flexBodyField: document.querySelector("#flexBodyField"),
+      imageField: document.querySelector("#imageField"),
+      altTextField: document.querySelector("#altTextField"),
+      buttonsField: document.querySelector("#buttonsField"),
+    };
+
+    const buttonInputs = [];
+    let state = {
+      config: null,
+      selectedId: "",
+      saving: false,
+    };
+
+    elements.adminPassword.value = sessionStorage.getItem("spiritualAdminPassword") || "";
+
+    function authHeaders() {
+      return {
+        Authorization: `Bearer ${elements.adminPassword.value.trim()}`,
+        "Content-Type": "application/json",
+      };
+    }
+
+    function setNotice(message, type = "") {
+      elements.noticeBox.textContent = message;
+      elements.noticeBox.className = `notice ${type}`;
+      elements.noticeBox.style.display = message ? "block" : "none";
+    }
+
+    function setStatus(message) {
+      elements.statusBox.textContent = message;
+    }
+
+    async function loadRules() {
+      if (!elements.adminPassword.value.trim()) {
+        setNotice("請先輸入管理密碼。", "error");
+        return;
+      }
+
+      setNotice("");
+      setStatus("讀取中...");
+
+      const response = await fetch("/api/admin/replies", {
+        headers: authHeaders(),
+      });
+      const payload = await response.json();
+
+      if (!response.ok || !payload.ok) {
+        setStatus("讀取失敗。");
+        setNotice(payload.error || "無法讀取規則。", "error");
+        return;
+      }
+
+      sessionStorage.setItem("spiritualAdminPassword", elements.adminPassword.value.trim());
+      state.config = payload.config;
+      state.selectedId = state.config.rules[0]?.id || "";
+      setStatus(`已載入 ${state.config.rules.length} 則規則。資料來源：${payload.repo} / ${payload.branch}`);
+      setNotice("已讀取宇宙通靈師專用規則。", "success");
+      setEnabledControls(true);
+      render();
+    }
+
+    async function saveRules() {
+      if (!state.config || state.saving) {
+        return;
+      }
+
+      updateSelectedFromForm();
+      state.saving = true;
+      elements.saveButton.disabled = true;
+      setNotice("儲存中，會寫回 sky770825/spiritual-medium 的 data/replies.json。");
+
+      const response = await fetch("/api/admin/replies", {
+        method: "PUT",
+        headers: authHeaders(),
+        body: JSON.stringify({ config: state.config }),
+      });
+      const payload = await response.json();
+      state.saving = false;
+      elements.saveButton.disabled = false;
+
+      if (!response.ok || !payload.ok) {
+        setNotice(payload.error || "儲存失敗。", "error");
+        return;
+      }
+
+      state.config = payload.config;
+      setStatus(`已儲存 ${state.config.rules.length} 則規則。最新 commit：${payload.commit || "已建立"}`);
+      setNotice("已儲存上線。Webhook 會讀取這份宇宙通靈師專用規則。", "success");
+      render();
+    }
+
+    function setEnabledControls(enabled) {
+      [
+        elements.addRuleButton,
+        elements.duplicateButton,
+        elements.deleteButton,
+        elements.saveButton,
+      ].forEach((button) => {
+        button.disabled = !enabled;
+      });
+    }
+
+    function render() {
+      renderRuleList();
+      renderEditor();
+      renderPreview();
+      if (window.lucide) {
+        lucide.createIcons();
+      }
+    }
+
+    function selectedRule() {
+      return state.config?.rules.find((rule) => rule.id === state.selectedId) || null;
+    }
+
+    function renderRuleList() {
+      elements.ruleList.innerHTML = "";
+
+      if (!state.config) {
+        return;
+      }
+
+      [...state.config.rules]
+        .sort((left, right) => right.priority - left.priority)
+        .forEach((rule) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = `rule-tab ${rule.id === state.selectedId ? "active" : ""}`;
+          button.innerHTML = `<strong>${escapeHtml(rule.name)}</strong><small>${escapeHtml(rule.trigger)} · ${escapeHtml(rule.response.type)} · ${rule.enabled ? "啟用" : "停用"}</small>`;
+          button.addEventListener("click", () => {
+            updateSelectedFromForm();
+            state.selectedId = rule.id;
+            render();
+          });
+          elements.ruleList.appendChild(button);
+        });
+    }
+
+    function renderEditor() {
+      const rule = selectedRule();
+
+      if (!rule) {
+        return;
+      }
+
+      elements.enabled.checked = rule.enabled;
+      elements.name.value = rule.name || "";
+      elements.priority.value = rule.priority || 0;
+      elements.trigger.value = rule.trigger || "message";
+      elements.responseType.value = rule.response?.type || "text";
+      elements.keywords.value = (rule.keywords || []).join("\n");
+      elements.text.value = rule.response?.text || "";
+      elements.flexTitle.value = rule.response?.title || "";
+      elements.flexBody.value = rule.response?.body || "";
+      elements.imageUrl.value = rule.response?.imageUrl || "";
+      elements.altText.value = rule.response?.altText || "";
+
+      renderButtonEditor(rule.response?.buttons || []);
+      updateFieldVisibility();
+    }
+
+    function renderButtonEditor(buttons) {
+      elements.buttonList.innerHTML = "";
+      buttonInputs.length = 0;
+
+      for (let index = 0; index < 4; index += 1) {
+        const button = buttons[index] || { label: "", type: "uri", value: "" };
+        const row = document.createElement("div");
+        row.className = "button-row";
+        row.innerHTML = `
+          <input type="text" placeholder="按鈕文字" value="${escapeAttr(button.label || "")}">
+          <select>
+            <option value="uri"${button.type !== "message" ? " selected" : ""}>網址</option>
+            <option value="message"${button.type === "message" ? " selected" : ""}>傳送文字</option>
+          </select>
+          <input type="text" placeholder="網址或傳送文字" value="${escapeAttr(button.value || "")}">
+        `;
+        elements.buttonList.appendChild(row);
+        const [label, type, value] = row.querySelectorAll("input, select");
+        buttonInputs.push({ label, type, value });
+        [label, type, value].forEach((input) => input.addEventListener("input", onFormInput));
+      }
+    }
+
+    function updateSelectedFromForm() {
+      const rule = selectedRule();
+
+      if (!rule) {
+        return;
+      }
+
+      rule.enabled = elements.enabled.checked;
+      rule.name = elements.name.value.trim() || "未命名規則";
+      rule.priority = Number(elements.priority.value || 0);
+      rule.trigger = elements.trigger.value;
+      rule.keywords = splitKeywords(elements.keywords.value);
+
+      if (elements.responseType.value === "flex") {
+        rule.response = {
+          type: "flex",
+          title: elements.flexTitle.value.trim(),
+          body: elements.flexBody.value.trim(),
+          imageUrl: elements.imageUrl.value.trim(),
+          altText: elements.altText.value.trim() || elements.flexTitle.value.trim() || "宇宙通靈師訊息",
+          buttons: buttonInputs
+            .map((item) => ({
+              label: item.label.value.trim(),
+              type: item.type.value,
+              value: item.value.value.trim(),
+            }))
+            .filter((button) => button.label && button.value),
+        };
+      } else {
+        rule.response = {
+          type: "text",
+          text: elements.text.value.trim(),
+        };
+      }
+    }
+
+    function onFormInput() {
+      updateSelectedFromForm();
+      updateFieldVisibility();
+      renderRuleList();
+      renderPreview();
+    }
+
+    function updateFieldVisibility() {
+      const isFlex = elements.responseType.value === "flex";
+      const isMessage = elements.trigger.value === "message";
+
+      elements.keywordsField.hidden = !isMessage;
+      elements.textField.hidden = isFlex;
+      elements.flexTitleField.hidden = !isFlex;
+      elements.flexBodyField.hidden = !isFlex;
+      elements.imageField.hidden = !isFlex;
+      elements.altTextField.hidden = !isFlex;
+      elements.buttonsField.hidden = !isFlex;
+    }
+
+    function renderPreview() {
+      const rule = selectedRule();
+
+      if (!rule) {
+        elements.previewBox.innerHTML = "";
+        return;
+      }
+
+      if (rule.response?.type === "flex") {
+        const buttons = (rule.response.buttons || [])
+          .map((button) => `<span>${escapeHtml(button.label)}</span>`)
+          .join("");
+        elements.previewBox.innerHTML = `
+          <div class="phone">
+            <div class="bubble">
+              ${rule.response.imageUrl ? `<img src="${escapeAttr(rule.response.imageUrl)}" alt="">` : ""}
+              <div class="bubble-body">
+                <div class="bubble-title">${escapeHtml(rule.response.title || "宇宙通靈師")}</div>
+                <div class="bubble-text">${escapeHtml(rule.response.body || "")}</div>
+              </div>
+              ${buttons ? `<div class="bubble-actions">${buttons}</div>` : ""}
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      elements.previewBox.innerHTML = `<div class="text-preview">${escapeHtml(rule.response?.text || "")}</div>`;
+    }
+
+    function addRule() {
+      updateSelectedFromForm();
+      const id = `rule-${Date.now()}`;
+      state.config.rules.push({
+        id,
+        enabled: true,
+        trigger: "message",
+        priority: 50,
+        name: "新關鍵字規則",
+        keywords: ["新關鍵字"],
+        response: {
+          type: "text",
+          text: "請輸入回覆內容。",
+        },
+      });
+      state.selectedId = id;
+      render();
+    }
+
+    function duplicateRule() {
+      const rule = selectedRule();
+
+      if (!rule) {
+        return;
+      }
+
+      updateSelectedFromForm();
+      const copy = JSON.parse(JSON.stringify(rule));
+      copy.id = `rule-${Date.now()}`;
+      copy.name = `${copy.name} 副本`;
+      copy.priority = Number(copy.priority || 0) - 1;
+      state.config.rules.push(copy);
+      state.selectedId = copy.id;
+      render();
+    }
+
+    function deleteRule() {
+      const rule = selectedRule();
+
+      if (!rule || rule.trigger === "fallback") {
+        setNotice("預設回覆不建議刪除，可以改成停用或修改內容。", "error");
+        return;
+      }
+
+      if (!confirm(`刪除「${rule.name}」？`)) {
+        return;
+      }
+
+      state.config.rules = state.config.rules.filter((item) => item.id !== rule.id);
+      state.selectedId = state.config.rules[0]?.id || "";
+      render();
+    }
+
+    function testMatch() {
+      updateSelectedFromForm();
+      const text = elements.testKeyword.value.trim();
+
+      if (!text) {
+        elements.testResult.textContent = "請先輸入測試訊息。";
+        return;
+      }
+
+      const rules = [...state.config.rules]
+        .filter((rule) => rule.enabled)
+        .sort((left, right) => right.priority - left.priority);
+      const matched = rules.find((rule) => {
+        return rule.trigger === "message" && (rule.keywords || []).some((keyword) => matchesKeyword(keyword, text));
+      });
+      const fallback = rules.find((rule) => rule.trigger === "fallback");
+      const result = matched || fallback;
+
+      elements.testResult.textContent = result ? `命中：${result.name}（${result.response.type}）` : "沒有命中，也沒有預設回覆。";
+    }
+
+    function matchesKeyword(pattern, incoming) {
+      const source = String(incoming || "").trim().toLowerCase();
+      const trigger = String(pattern || "").trim().toLowerCase();
+
+      if (!trigger) {
+        return false;
+      }
+
+      if (trigger === "*") {
+        return true;
+      }
+
+      const startsWithWildcard = trigger.startsWith("*");
+      const endsWithWildcard = trigger.endsWith("*");
+      const keyword = trigger.replace(/^\*+|\*+$/g, "");
+
+      if (!keyword) {
+        return true;
+      }
+
+      if (startsWithWildcard && endsWithWildcard) {
+        return source.includes(keyword);
+      }
+
+      if (startsWithWildcard) {
+        return source.endsWith(keyword);
+      }
+
+      if (endsWithWildcard) {
+        return source.startsWith(keyword);
+      }
+
+      return source === keyword;
+    }
+
+    function splitKeywords(value) {
+      return value
+        .split(/[\n,，]/)
+        .map((keyword) => keyword.trim())
+        .filter(Boolean);
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replaceAll("\n", " ");
+    }
+
+    [
+      elements.enabled,
+      elements.name,
+      elements.priority,
+      elements.trigger,
+      elements.responseType,
+      elements.keywords,
+      elements.text,
+      elements.flexTitle,
+      elements.flexBody,
+      elements.imageUrl,
+      elements.altText,
+    ].forEach((input) => input.addEventListener("input", onFormInput));
+
+    elements.loadButton.addEventListener("click", loadRules);
+    elements.saveButton.addEventListener("click", saveRules);
+    elements.addRuleButton.addEventListener("click", addRule);
+    elements.duplicateButton.addEventListener("click", duplicateRule);
+    elements.deleteButton.addEventListener("click", deleteRule);
+    elements.testButton.addEventListener("click", testMatch);
+    elements.adminPassword.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") {
+        loadRules();
+      }
+    });
+
+    if (window.lucide) {
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>
