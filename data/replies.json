@@ -1,7 +1,7 @@
 {
   "version": 1,
   "brand": "spiritual-medium",
-  "updatedAt": "2026-05-18T02:51:09.022Z",
+  "updatedAt": "2026-05-18T05:14:00.000Z",
   "rules": [
     {
       "id": "welcome-follow",
@@ -12,79 +12,166 @@
       "keywords": [],
       "response": {
         "type": "text",
-        "text": "謝謝你加入宇宙通靈師・宇瑒老師。若想預約諮詢，請回覆想了解的服務項目、方便時段，以及你想詢問的主題。"
+        "text": "謝謝你加入宇宙通靈師・宇瑒老師。請點選下方圖文選單，選擇你想同步的頻率主題。"
       }
     },
     {
-      "id": "booking-flex",
+      "id": "signal-human",
       "enabled": true,
       "trigger": "message",
-      "priority": 90,
-      "name": "預約諮詢",
+      "priority": 96,
+      "name": "01 真人訊號連線",
       "keywords": [
-        "預約",
-        "預定",
-        "諮詢",
-        "咨詢",
-        "報名",
-        "時間",
-        "*預約*",
-        "*諮詢*"
+        "01",
+        "真人訊號連線",
+        "真人讯号连线",
+        "與宇瑒老師頻率同步",
+        "*真人訊號*",
+        "*訊號連線*"
       ],
       "response": {
-        "type": "flex",
-        "altText": "宇宙通靈師預約諮詢",
-        "title": "預約宇宙通靈諮詢",
-        "body": "請留下想預約的服務項目、方便日期時間，以及想詢問的主題。服務時間為 10:00 - 22:00。",
-        "imageUrl": "https://spiritual-medium-site.vercel.app/assets/images/hero-cosmic.jpg",
-        "buttons": [
-          {
-            "label": "前往網站",
-            "type": "uri",
-            "value": "https://spiritual-medium-site.vercel.app"
-          },
-          {
-            "label": "我要預約",
-            "type": "message",
-            "value": "我要預約諮詢"
-          }
-        ]
+        "type": "text",
+        "text": "正在建立訊號連線中…\n\n為了更準確接收你的頻率，\n請提供以下資訊：\n\n｜近期3個月內照片（越近越好）\n｜姓名：\n｜想詢問的問題：\n\n有些訊號需要透過影像與頻率同步，\n才能更清楚接收。"
       }
     },
     {
-      "id": "services-flex",
+      "id": "signal-career",
       "enabled": true,
       "trigger": "message",
-      "priority": 80,
-      "name": "服務項目",
+      "priority": 95,
+      "name": "02 工作／事業",
       "keywords": [
-        "服務",
-        "項目",
-        "價格",
-        "收費",
-        "費用",
-        "內容",
-        "*服務*",
-        "*費用*"
+        "02",
+        "工作／事業",
+        "工作/事業",
+        "工作",
+        "事業",
+        "工作方向",
+        "創業",
+        "创业",
+        "轉職",
+        "转职",
+        "卡關",
+        "合作",
+        "人際",
+        "未來發展",
+        "*工作*",
+        "*事業*"
       ],
       "response": {
-        "type": "flex",
-        "altText": "宇宙通靈師服務項目",
-        "title": "服務項目",
-        "body": "目前提供靈魂對話、能量療癒、命運指引、陰陽平衡。你可以回覆想了解的項目，我會協助安排適合的諮詢方式。",
-        "imageUrl": "https://spiritual-medium-site.vercel.app/assets/images/medium-portrait.jpg",
-        "buttons": [
-          {
-            "label": "查看服務",
-            "type": "uri",
-            "value": "https://spiritual-medium-site.vercel.app/#services"
-          },
-          {
-            "label": "我要預約",
-            "type": "message",
-            "value": "我要預約諮詢"
-          }
-        ]
+        "type": "text",
+        "text": "正在讀取你的工作頻率…\n\n請提供以下資訊：\n\n｜近期3個月內照片\n｜姓名：\n｜目前工作／事業狀況\n｜想詢問的問題：\n\n例如：\n工作方向、創業、轉職、卡關、合作、人際、未來發展。"
+      }
+    },
+    {
+      "id": "signal-relationship",
+      "enabled": true,
+      "trigger": "message",
+      "priority": 94,
+      "name": "03 感情／關係",
+      "keywords": [
+        "03",
+        "感情／關係",
+        "感情/關係",
+        "感情",
+        "關係",
+        "关系",
+        "曖昧",
+        "暧昧",
+        "復合",
+        "复合",
+        "斷聯",
+        "断联",
+        "第三者",
+        "靈魂連結",
+        "灵魂连结",
+        "*感情*",
+        "*關係*"
+      ],
+      "response": {
+        "type": "text",
+        "text": "正在連結感情能量…\n\n請提供以下資訊：\n\n｜近期3個月內照片\n｜姓名：\n｜對方姓名（可暱稱）\n｜目前關係狀態\n｜想詢問的問題：\n\n例如：\n曖昧、復合、斷聯、第三者、靈魂連結、未來發展。"
+      }
+    },
+    {
+      "id": "signal-wealth",
+      "enabled": true,
+      "trigger": "message",
+      "priority": 93,
+      "name": "04 財運／運勢",
+      "keywords": [
+        "04",
+        "財運／運勢",
+        "財運/運勢",
+        "財運",
+        "财运",
+        "運勢",
+        "运势",
+        "投資",
+        "投资",
+        "副業",
+        "副业",
+        "近期運勢",
+        "能量變化",
+        "*財運*",
+        "*運勢*"
+      ],
+      "response": {
+        "type": "text",
+        "text": "正在觀測近期運勢流動…\n\n請提供以下資訊：\n\n｜近期3個月內照片\n｜姓名：\n｜目前狀況\n｜想詢問的問題：\n\n例如：\n財運、投資、副業、近期運勢、能量變化。"
+      }
+    },
+    {
+      "id": "signal-health-family",
+      "enabled": true,
+      "trigger": "message",
+      "priority": 92,
+      "name": "05 健康／家庭",
+      "keywords": [
+        "05",
+        "健康／家庭",
+        "健康/家庭",
+        "健康",
+        "家庭",
+        "家庭關係",
+        "亲子问题",
+        "親子問題",
+        "情緒狀態",
+        "情绪状态",
+        "*健康*",
+        "*家庭*"
+      ],
+      "response": {
+        "type": "text",
+        "text": "正在感應家庭與健康頻率…\n\n請提供以下資訊：\n\n｜近期3個月內照片\n｜姓名：\n｜目前狀況\n｜想詢問的問題：\n\n例如：\n健康能量、家庭關係、親子問題、情緒狀態。"
+      }
+    },
+    {
+      "id": "signal-spirit",
+      "enabled": true,
+      "trigger": "message",
+      "priority": 91,
+      "name": "06 主神／亡靈",
+      "keywords": [
+        "06",
+        "主神／亡靈",
+        "主神/亡靈",
+        "主神",
+        "亡靈",
+        "亡灵",
+        "指導靈",
+        "指导灵",
+        "空間感應",
+        "空间感应",
+        "夢境異常",
+        "梦境异常",
+        "特殊感應",
+        "*主神*",
+        "*亡靈*"
+      ],
+      "response": {
+        "type": "text",
+        "text": "正在建立高維訊號連線…\n\n請提供以下資訊：\n\n｜近期3個月內照片\n｜姓名：\n｜目前感應到的狀況\n｜想詢問的問題：\n\n例如：\n主神訊息、指導靈、亡靈訊號、空間感應、夢境異常、特殊感應。"
       }
     },
     {
@@ -111,7 +198,7 @@
       "keywords": [],
       "response": {
         "type": "text",
-        "text": "我收到你的訊息了。宇宙通靈師會在服務時間 10:00 - 22:00 回覆你。若想預約，請留下服務項目、方便時段與想詢問的主題。"
+        "text": "我收到你的訊息了。請點選下方圖文選單，選擇你想同步的頻率主題；或直接留下照片、姓名與想詢問的問題。"
       }
     }
   ]
