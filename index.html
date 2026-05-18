@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>宇宙通靈師 ｜ 與宇宙萬靈對話</title>
-  <meta name="description" content="專業通靈諮詢服務，透過宇宙能量與萬靈對話，為你指引生命方向。服務包含靈魂對話、能量療癒、命運指引、陰陽平衡。">
+  <meta name="description" content="宇瑒老師異頻訊號接收服務價目表，接收來自不同維度的訊號，翻譯你當下的頻率狀態。預約請洽 LINE 官方帳號。">
   
   <!-- Open Graph -->
   <meta property="og:title" content="宇宙通靈師 ｜ 與宇宙萬靈對話">
@@ -457,97 +457,19 @@
       background: linear-gradient(180deg, var(--cosmic-deep) 0%, var(--cosmic-dark) 100%);
     }
 
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 2rem;
-    }
-
-    .service-card {
-      background: linear-gradient(145deg, rgba(45,27,78,0.6), rgba(26,10,46,0.8));
-      border: 1px solid rgba(212,175,55,0.15);
-      border-radius: 20px;
-      overflow: hidden;
-      transition: all 0.4s;
-      position: relative;
-    }
-
-    .service-card:hover {
-      transform: translateY(-8px);
-      border-color: rgba(212,175,55,0.4);
-      box-shadow: 0 20px 50px rgba(107,63,160,0.3);
-    }
-
-    .service-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--mystic-purple), var(--divine-gold));
-      opacity: 0;
-      transition: opacity 0.4s;
-    }
-
-    .service-card:hover::before {
-      opacity: 1;
-    }
-
-    .service-image {
-      width: 100%;
-      height: 220px;
-      overflow: hidden;
-    }
-
-    .service-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.6s;
-    }
-
-    .service-card:hover .service-image img {
-      transform: scale(1.05);
-    }
-
-    .service-body {
-      padding: 1.8rem;
-    }
-
-    .service-icon {
-      width: 50px;
-      height: 50px;
-      background: linear-gradient(135deg, var(--mystic-purple), var(--divine-gold));
-      border-radius: 50%;
+    .price-list-wrap {
       display: flex;
-      align-items: center;
       justify-content: center;
-      margin-bottom: 1rem;
     }
 
-    .service-icon i {
-      width: 24px;
-      height: 24px;
-      color: white;
-    }
-
-    .service-body h3 {
-      font-size: 1.3rem;
-      color: var(--ethereal-white);
-      margin-bottom: 0.5rem;
-    }
-
-    .service-body .service-en {
-      font-family: 'Cinzel', serif;
-      font-size: 0.75rem;
-      color: var(--divine-gold);
-      letter-spacing: 0.2em;
-      margin-bottom: 1rem;
-    }
-
-    .service-body p {
-      color: var(--text-body);
-      line-height: 1.8;
-      font-size: 0.95rem;
+    .price-list-image {
+      display: block;
+      width: min(100%, 760px);
+      height: auto;
+      border: 1px solid rgba(212,175,55,0.42);
+      border-radius: 8px;
+      box-shadow: 0 24px 70px rgba(0,0,0,0.45);
+      background: var(--cosmic-dark);
     }
 
     /* ===== PROCESS ===== */
@@ -857,8 +779,13 @@
         grid-template-columns: 1fr;
       }
 
-      .services-grid {
-        grid-template-columns: 1fr;
+      .price-list-image {
+        width: 100%;
+      }
+
+      .services {
+        padding-left: 0.75rem;
+        padding-right: 0.75rem;
       }
 
       .process-steps {
@@ -994,20 +921,28 @@
           </blockquote>
           <div class="about-abilities">
             <div class="ability-item">
+              <i data-lucide="radio"></i>
+              <span>真人訊號連線</span>
+            </div>
+            <div class="ability-item">
+              <i data-lucide="briefcase-business"></i>
+              <span>工作／事業</span>
+            </div>
+            <div class="ability-item">
+              <i data-lucide="heart"></i>
+              <span>感情／關係</span>
+            </div>
+            <div class="ability-item">
+              <i data-lucide="coins"></i>
+              <span>財運／運勢</span>
+            </div>
+            <div class="ability-item">
+              <i data-lucide="home"></i>
+              <span>健康／家庭</span>
+            </div>
+            <div class="ability-item">
               <i data-lucide="eye"></i>
-              <span>靈魂對話</span>
-            </div>
-            <div class="ability-item">
-              <i data-lucide="sparkles"></i>
-              <span>能量療癒</span>
-            </div>
-            <div class="ability-item">
-              <i data-lucide="compass"></i>
-              <span>命運指引</span>
-            </div>
-            <div class="ability-item">
-              <i data-lucide="yin-yang"></i>
-              <span>陰陽平衡</span>
+              <span>主神／亡靈</span>
             </div>
           </div>
         </div>
@@ -1020,75 +955,20 @@
     <div class="container">
       <div class="section-header">
         <p class="section-eyebrow">✦ SERVICES ✦</p>
-        <h2 class="section-title">服務項目</h2>
+        <h2 class="section-title">服務價目表</h2>
         <div class="gold-divider"></div>
-        <p class="section-desc">每一種服務都是根據你的個人情況量身定制，宇宙的語言因人而異</p>
+        <p class="section-desc">接收來自不同維度的訊號，翻譯你當下的頻率狀態</p>
       </div>
 
-      <div class="services-grid">
-        <!-- 靈魂對話 -->
-        <div class="service-card fade-in">
-          <div class="service-image">
-            <img src="assets/images/service-soul-new.jpg" alt="靈魂對話"
-                 onerror="this.parentElement.style.background='linear-gradient(135deg, #1a0a2e, #6b3fa0)'; this.style.display='none'">
-          </div>
-          <div class="service-body">
-            <div class="service-icon">
-              <i data-lucide="ear"></i>
-            </div>
-            <h3>靈魂對話</h3>
-            <p class="service-en">SOUL COMMUNICATION</p>
-            <p>透過通靈能力，協助你與已故親友、指導靈或祖先連結。化解未完成的遺憾，傳遞來自另一邊的愛與祝福。</p>
-          </div>
-        </div>
-
-        <!-- 能量療癒 -->
-        <div class="service-card fade-in">
-          <div class="service-image">
-            <img src="assets/images/service-healing-new.jpg" alt="能量療癒"
-                 onerror="this.parentElement.style.background='linear-gradient(135deg, #1a0a2e, #4a2d7a)'; this.style.display='none'">
-          </div>
-          <div class="service-body">
-            <div class="service-icon">
-              <i data-lucide="heart-pulse"></i>
-            </div>
-            <h3>能量療癒</h3>
-            <p class="service-en">ENERGY HEALING</p>
-            <p>運用宇宙能量清除體內淤積的負面頻率，修復氣場破洞，讓你的靈性身體恢復完整與平衡。</p>
-          </div>
-        </div>
-
-        <!-- 命運指引 -->
-        <div class="service-card fade-in">
-          <div class="service-image">
-            <img src="assets/images/service-destiny-final.jpg" alt="命運指引"
-                 onerror="this.parentElement.style.background='linear-gradient(135deg, #1a0a2e, #7a2d4a)'; this.style.display='none'">
-          </div>
-          <div class="service-body">
-            <div class="service-icon">
-              <i data-lucide="compass"></i>
-            </div>
-            <h3>命運指引</h3>
-            <p class="service-en">DESTINY GUIDANCE</p>
-            <p>在人生十字路口時，透過宇宙訊息為你指引方向。無論是事業、愛情或靈性成長，找到屬於你的道路。</p>
-          </div>
-        </div>
-
-        <!-- 陰陽平衡 -->
-        <div class="service-card fade-in">
-          <div class="service-image">
-            <img src="assets/images/service-balance-v2.jpg" alt="陰陽平衡"
-                 onerror="this.parentElement.style.background='linear-gradient(135deg, #1a0a2e, #2d5a7a)'; this.style.display='none'">
-          </div>
-          <div class="service-body">
-            <div class="service-icon">
-              <i data-lucide="circle-dot"></i>
-            </div>
-            <h3>陰陽平衡</h3>
-            <p class="service-en">YIN-YANG BALANCE</p>
-            <p>當你感到生活失衡、能量混亂時，協助你重新調和陰陽能量，讓身心靈回到的和諧狀態。</p>
-          </div>
-        </div>
+      <div class="price-list-wrap">
+        <img
+          class="price-list-image"
+          src="assets/images/service-price-list.jpg"
+          alt="宇瑒老師異頻訊號接收服務價目表"
+          loading="lazy"
+          width="1080"
+          height="1920"
+        >
       </div>
     </div>
   </section>
@@ -1107,7 +987,7 @@
         <div class="process-step fade-in">
           <div class="step-number">1</div>
           <h3>預約時段</h3>
-          <p>加入 LINE 官方帳號，選擇適合你的服務項目與時間。首次諮詢請簡述你的問題背景。</p>
+          <p>加入 LINE 官方帳號，選擇適合你的頻率主題與時間。首次諮詢請簡述你的問題背景。</p>
         </div>
         <div class="process-step fade-in">
           <div class="step-number">2</div>
@@ -1145,7 +1025,7 @@
             <div class="author-avatar">Y</div>
             <div class="author-info">
               <span class="author-name">_Yue</span>
-              <span class="author-type">靈魂對話</span>
+              <span class="author-type">真人訊號連線</span>
             </div>
           </div>
         </div>
@@ -1155,13 +1035,13 @@
             <i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i><i data-lucide="star"></i>
           </div>
           <p class="testimonial-text">
-            做完能量療癒後，我失眠多年的問題竟然改善了。師父說我身上有一個很大的能量破洞，療癒後整個人輕了很多，感覺宇宙真的在幫我。
+            完成頻率同步後，我失眠多年的問題慢慢改善了。師父說我近期的能量狀態太緊繃，調整方向後整個人輕了很多。
           </p>
           <div class="testimonial-author">
             <div class="author-avatar">M</div>
             <div class="author-info">
               <span class="author-name">_Ming</span>
-              <span class="author-type">能量療癒</span>
+              <span class="author-type">健康／家庭</span>
             </div>
           </div>
         </div>
@@ -1177,7 +1057,7 @@
             <div class="author-avatar">S</div>
             <div class="author-info">
               <span class="author-name">_Sasa</span>
-              <span class="author-type">命運指引</span>
+              <span class="author-type">工作／事業</span>
             </div>
           </div>
         </div>
