@@ -1,7 +1,7 @@
 {
   "version": 1,
   "brand": "spiritual-medium",
-  "updatedAt": "2026-05-18T00:00:00.000Z",
+  "updatedAt": "2026-05-18T02:51:09.022Z",
   "rules": [
     {
       "id": "welcome-follow",
@@ -21,7 +21,16 @@
       "trigger": "message",
       "priority": 90,
       "name": "預約諮詢",
-      "keywords": ["預約", "預定", "諮詢", "咨詢", "報名", "時間", "*預約*", "*諮詢*"],
+      "keywords": [
+        "預約",
+        "預定",
+        "諮詢",
+        "咨詢",
+        "報名",
+        "時間",
+        "*預約*",
+        "*諮詢*"
+      ],
       "response": {
         "type": "flex",
         "altText": "宇宙通靈師預約諮詢",
@@ -48,7 +57,16 @@
       "trigger": "message",
       "priority": 80,
       "name": "服務項目",
-      "keywords": ["服務", "項目", "價格", "收費", "費用", "內容", "*服務*", "*費用*"],
+      "keywords": [
+        "服務",
+        "項目",
+        "價格",
+        "收費",
+        "費用",
+        "內容",
+        "*服務*",
+        "*費用*"
+      ],
       "response": {
         "type": "flex",
         "altText": "宇宙通靈師服務項目",
@@ -75,7 +93,10 @@
       "trigger": "message",
       "priority": 70,
       "name": "連線測試",
-      "keywords": ["測試", "test"],
+      "keywords": [
+        "測試",
+        "test"
+      ],
       "response": {
         "type": "text",
         "text": "LINE webhook 已連線成功。"
