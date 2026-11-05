@@ -1,46 +1,15 @@
 (() => {
-  const $ = id => document.getElementById(id);
-  const taipeiToday = new Intl.DateTimeFormat('sv-SE', {timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-  ['date1','date2','date3'].forEach(id => { $(id).min = taipeiToday; });
-  $('signed-date').value = taipeiToday;
-  $('signed-date').max = taipeiToday;
-  $('booking-form').addEventListener('submit', event => {
-    event.preventDefault();
-    const name = $('name').value.trim();
-    const signature = $('signature').value.trim();
-    $('name').setCustomValidity(name ? '' : '請填寫姓名');
-    $('signature').setCustomValidity(signature ? '' : '請填寫正楷姓名');
-    if (!$('booking-form').reportValidity()) return;
-    const dates = [...new Set(['date1','date2','date3'].map(id => $(id).value).filter(Boolean))];
-    $('summary').value = [
-      '【預約申請・待老師確認】',
-      '宇宙玉皇大帝原始大天尊無上至尊',
-      `預約姓名：${name}`,
-      `服務：${document.querySelector('input[name="service"]:checked').value}`,
-      `方便日期：${$('availability').value}`,
-      `希望日期：${dates.join('、')}`,
-      `方便時段：${$('period').value}（台北時間）`,
-      $('question').value.trim() ? `主要問題：${$('question').value.trim()}` : '',
-      '已閱讀並了解服務內容、費用及預約方式。',
-      '首次最多30分鐘；先解惑、後付費；時間由老師親自確認。',
-      `簽名：${signature}`,
-      `填寫日期：${$('signed-date').value}`
-    ].filter(Boolean).join('\n');
-    $('copy-status').textContent = '';
-    $('result').hidden = false;
-    $('result').scrollIntoView({behavior:'smooth',block:'start'});
-    $('summary').focus({preventScroll:true});
-  });
-  ['name','signature'].forEach(id => $(id).addEventListener('input', () => $(id).setCustomValidity('')));
-  $('booking-form').addEventListener('input', () => { $('result').hidden = true; });
-  $('booking-form').addEventListener('change', () => { $('result').hidden = true; });
-  $('copy').addEventListener('click', async () => {
-    try {
-      await navigator.clipboard.writeText($('summary').value);
-      $('copy-status').textContent = '已複製。請開啟 LINE，貼上並送出。';
-    } catch {
-      $('summary').focus(); $('summary').select();
-      $('copy-status').textContent = '無法自動複製，已選取摘要，請長按或使用複製快捷鍵。';
-    }
-  });
+ const $=id=>document.getElementById(id);let duration=10,days=[],selectedDate='',selectedTime='',month='',receipt=null,requestId=crypto.randomUUID(),submitting=false,loadVersion=0;
+ const today=new Intl.DateTimeFormat('sv-SE',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());$('signed-date').value=today;
+ const pretty=date=>new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',month:'long',day:'numeric',weekday:'short'}).format(new Date(date+'T12:00:00+08:00'));
+ const clock=ms=>new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(ms));
+ async function load(){const version=++loadVersion;$('availability-status').textContent='正在更新可預約時段…';$('retry').hidden=true;selectedTime='';selection();try{const r=await fetch('/api/booking?duration='+duration,{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error);if(version!==loadVersion)return;days=d.days;$('buffer-note').textContent=`◷ 每場後預留 ${d.bufferMinutes} 分鐘緩衝`;if(!days.some(d=>d.date===selectedDate&&d.slots.length))selectedDate=days.find(d=>d.slots.length)?.date||'';month=(selectedDate||days[0]?.date||today).slice(0,7);$('availability-status').textContent=d.enabled?`台北時間 · 可預約未來 ${d.horizonDays} 天 · 至少提前 ${d.leadMinutes} 分鐘`:'目前暫停接受新預約，請透過 LINE 聯繫。';render();}catch(e){if(version!==loadVersion)return;days=[];$('calendar-days').replaceChildren();$('time-slots').replaceChildren();$('availability-status').textContent=e.message||'無法讀取時段';$('retry').hidden=false;}}
+ function render(){const [y,m]=month.split('-').map(Number);$('month-label').textContent=`${y} 年 ${m} 月`;$('calendar-days').replaceChildren();const first=new Date(Date.UTC(y,m-1,1)).getUTCDay(),count=new Date(Date.UTC(y,m,0)).getUTCDate();for(let i=0;i<first;i++)$('calendar-days').append(document.createElement('span'));for(let n=1;n<=count;n++){const date=`${month}-${String(n).padStart(2,'0')}`,day=days.find(d=>d.date===date),button=document.createElement('button');button.type='button';button.textContent=n;button.className='day'+(date===selectedDate?' selected':'')+(date===today?' today':'');button.disabled=!day?.slots.length;button.setAttribute('aria-label',pretty(date)+(day?.slots.length?`，${day.slots.length}個可約時段`:'，無可約時段'));button.setAttribute('aria-pressed',String(date===selectedDate));button.addEventListener('click',()=>{selectedDate=date;selectedTime='';requestId=crypto.randomUUID();render();selection();});$('calendar-days').append(button);}$('prev-month').disabled=!days.length||month<=days[0].date.slice(0,7);$('next-month').disabled=!days.length||month>=days.at(-1).date.slice(0,7);$('time-label').textContent=selectedDate?pretty(selectedDate):'目前沒有可預約時段';$('time-slots').replaceChildren();for(const slot of days.find(d=>d.date===selectedDate)?.slots||[]){const b=document.createElement('button');b.type='button';b.className='time-slot'+(slot.time===selectedTime?' selected':'');b.textContent=slot.time;b.setAttribute('aria-pressed',String(slot.time===selectedTime));b.addEventListener('click',()=>{selectedTime=slot.time;requestId=crypto.randomUUID();render();selection();});$('time-slots').append(b);}}
+ function selection(){const card=$('selection');card.replaceChildren();const label=document.createElement('span');label.className='eyebrow';label.textContent='你的預約';const p=document.createElement('p'),slot=days.find(d=>d.date===selectedDate)?.slots.find(s=>s.time===selectedTime);p.textContent=slot?`${pretty(selectedDate)} ${selectedTime}–${slot.end}\n${duration}分鐘 · NT$${duration*30}`:'請選擇日期與時間';card.append(label,p);$('submit-booking').disabled=!slot||submitting;$('submit-booking').textContent=submitting?'正在登記，請稍候…':slot?`登記 ${selectedTime} 的 ${duration} 分鐘預約 →`:'請先選擇日期與時間';}
+ document.querySelectorAll('[data-duration]').forEach(b=>b.addEventListener('click',()=>{if(submitting)return;duration=Number(b.dataset.duration);document.querySelectorAll('[data-duration]').forEach(x=>{x.classList.toggle('selected',x===b);x.setAttribute('aria-pressed',String(x===b));});requestId=crypto.randomUUID();load();}));
+ for(const [id,delta] of [['prev-month',-1],['next-month',1]])$(id).addEventListener('click',()=>{const [y,m]=month.split('-').map(Number);month=new Date(Date.UTC(y,m-1+delta,1)).toISOString().slice(0,7);render();});$('retry').addEventListener('click',load);
+ $('booking-form').addEventListener('input',()=>{if(!submitting)requestId=crypto.randomUUID();});
+ $('booking-form').addEventListener('submit',async e=>{e.preventDefault();if(submitting||!selectedDate||!selectedTime)return;const input={requestId,date:selectedDate,time:selectedTime,duration,name:$('name').value.trim(),contact:$('contact').value.trim(),question:$('question').value.trim(),signature:$('signature').value.trim(),consent:$('consent').checked,website:$('website').value};submitting=true;document.querySelector('.calendar-time-layout').inert=true;document.querySelector('.duration-picker').inert=true;selection();$('submit-status').textContent='';try{const r=await fetch('/api/booking',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(input)});const d=await r.json();if(!r.ok){if(r.status===409){await load();requestId=crypto.randomUUID();}throw Error(d.error);}receipt=d.booking;if(receipt.status==='expired'||receipt.status==='cancelled')throw Error('這筆申請已到期或取消，請重新選擇時段。');$('details-section').hidden=true;$('receipt').hidden=false;document.querySelector('.calendar-time-layout').hidden=true;$('receipt-detail').textContent=`${pretty(receipt.date)} ${receipt.time}–${clock(receipt.endAt)} · ${receipt.duration}分鐘 · NT$${receipt.price}`;$('receipt-expiry').textContent='暫留至 '+new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date(receipt.expiresAt))+'，請在期限內透過 LINE 確認。';$('summary').value=['【行事曆預約申請・待確認】','宇宙玉皇大帝原始大天尊無上至尊',`預約編號：${receipt.id}`,`姓名：${input.name}`,`LINE名稱：${input.contact}`,`時間：${receipt.date} ${receipt.time}–${clock(receipt.endAt)}（台北時間）`,`問事：${receipt.duration}分鐘｜NT$${receipt.price}`,input.question?`主要問題：${input.question}`:'','已閱讀服務、費用及預約資料使用說明。',`簽名：${input.signature}`,`日期：${today}`,'首次最多30分鐘；先解惑、後付費。'].filter(Boolean).join('\n');$('receipt').scrollIntoView({behavior:'smooth'});}catch(err){$('submit-status').textContent=err.message||'連線中斷，請再試一次；同一申請不會重複預約。';}finally{submitting=false;document.querySelector('.calendar-time-layout').inert=false;document.querySelector('.duration-picker').inert=Boolean(receipt&&$('receipt').hidden===false);selection();}});
+ $('copy').addEventListener('click',async()=>{try{await navigator.clipboard.writeText($('summary').value);$('copy-status').textContent='已複製，請在 LINE 貼上並送出。';}catch{$('summary').focus();$('summary').select();$('copy-status').textContent='請手動複製已選取的摘要。';}});
+ $('download-ics').addEventListener('click',()=>{if(!receipt)return;const stamp=ms=>new Date(ms).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');const text=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Spiritual Booking//ZH-TW','CALSCALE:GREGORIAN','BEGIN:VEVENT',`UID:${receipt.id}@spiritual-medium-site.vercel.app`,`DTSTAMP:${stamp(Date.now())}`,`DTSTART:${stamp(receipt.startAt)}`,`DTEND:${stamp(receipt.endAt)}`,'SUMMARY:通靈問事（待老師確認）','STATUS:TENTATIVE','DESCRIPTION:此為預約申請。請透過官方LINE取得老師確認。','BEGIN:VALARM','TRIGGER:-PT10M','ACTION:DISPLAY','DESCRIPTION:問事預約將於10分鐘後開始','END:VALARM','END:VEVENT','END:VCALENDAR',''].join('\r\n');const url=URL.createObjectURL(new Blob([text],{type:'text/calendar;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download='問事預約-'+receipt.date+'.ics';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});load();
 })();

@@ -1,0 +1,1 @@
+{"name":"spiritual-medium-site","version":"2.0.0","private":true,"scripts":{"test":"node --test tests/*.test.js"},"dependencies":{"@vercel/blob":"2.8.2"},"engines":{"node":"22.x"},"overrides":{"@vercel/cli-config":"0.3.6"}}
