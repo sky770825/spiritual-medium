@@ -11,3 +11,5 @@ Tech: existing Node/Vercel Blob/LIFF/Messaging API.
 - [ ] Configure channel ID, check bot token configuration, publish only with pending platform confirmation; update menu only if published. Real phone delivery cannot be claimed without observation.
 
 Verification: 27 tests pass; independent review clear after stale-notification fix. Production dpl_24aoyqpjmfCjpmvS85tuLQQD1aoy READY. Formal invalid ID token 401, unauthenticated retry401, static assets match local, admin health401 fromLINE. No test records sent to real customers. Application publish and credential binding confirmation pending.
+
+2026-11-05 follow-up: user authorized execution. Published LINE channel, secured existing bot token in production Vercel sensitive env, deployed dpl_bTvHadthmkSoQX5F6iJEWXPdMfzY, production line-health ready, menu links toLIFF. Real mobile customer receipt still unobserved.

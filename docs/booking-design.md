@@ -36,3 +36,7 @@ LINE channel仍為Developing；發布確認提示不能切回開發模式，已�
 正式設定缺口查核：2026-11-05 本機匯出的 LINE_CHANNEL_ACCESS_TOKEN 為空，但正式runtime顯示有設定；新增管理者 line-health 動作呼叫 bot/info，正式結果 line_http_401。以正式驗證為準，不能因匯出空白便斷言runtime不存在。既有Messaging API channel有既發憑證，尚待使用者同意安全存入Vercel。LINE Login應用仍Developing，發布的不可逆平台確認也待回答。程式部署不代表此兩項已啟用，手機客戶端實際通知尚未驗證。
 
 參考LINE官方文件：https://developers.line.biz/en/docs/line-login/verify-id-token/ 、https://developers.line.biz/en/reference/messaging-api/nojs/#send-push-message 。
+
+### 正式啟用更新（2026-11-05）
+
+使用者回覆「你自己執行」授權執行兩項待確認步驟。LINE Login頻道已Published；官方帳號既有Channel access token已核對bot/info=200且basicId正確，安全更新Vercel production的敏感環境變數。未重新簽發。部署dpl_bTvHadthmkSoQX5F6iJEWXPdMfzY READY；正式後台line-health=ready，UI顯示官方LINE通知連線正常。三格選單20474766的A預約查詢連結已改https://liff.line.me/2012387050-7GZmUUJ4；B、C仍原文字功能。API預設六格狀態另查核。正式手機LINE登入／申請／核准實收尚未觀察，不聲稱端到端傳送完成。暫存憑證已刪除，不存repo或文件。
