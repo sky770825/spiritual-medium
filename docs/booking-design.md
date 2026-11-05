@@ -42,3 +42,11 @@ LINE channel仍為Developing；發布確認提示不能切回開發模式，已�
 使用者回覆「你自己執行」授權執行兩項待確認步驟。LINE Login頻道已Published；官方帳號既有Channel access token已核對bot/info=200且basicId正確，安全更新Vercel production的敏感環境變數。未重新簽發。部署dpl_bTvHadthmkSoQX5F6iJEWXPdMfzY READY；正式後台line-health=ready，UI顯示官方LINE通知連線正常。三格選單20474766的A預約查詢連結已改https://liff.line.me/2012387050-7GZmUUJ4；B、C仍原文字功能。API預設六格狀態另查核。正式手機LINE登入／申請／核准實收尚未觀察，不聲稱端到端傳送完成。暫存憑證已刪除，不存repo或文件。
 
 發訊權限補驗：正式line-health額外呼叫LINE validate/push（只驗證、不傳訊），結果ready；部署dpl_3fck7iLmLBv6inz6hVMkQnTd4J4A。另查API預設richmenu回403，不能以本次查核宣稱default404；Official Account Manager目前顯示的三格選單及LIFF連結已讀回確認。
+
+## 真實帳號實測進度（2026-11-05）
+
+使用者明確同意首次LINE授權及測試通知。正式LIFF外部瀏覽器登入與授權成功；以標示系統實測的資料建立11/6 14:00 10分鐘預約，前台回已綁定LINE，後台顯示驗證身分與user ID。後台實際核准、取消，兩次通知均LINE受理、各嘗試1次；取消後公開availability該14:00時段重新開放，測試紀錄已移到可還原的已移除紀錄。
+
+未將API受理誤記為收到：本機LINE與網頁測試登入為不同帳號；iPhone Mirroring首次啟動回無法連接iPhone，待使用者將手機放在Mac附近並啟用Wi-Fi及藍牙後續查實際收訊。未完成LINE手機內來源聊天室申請摘要傳送測試。
+
+實測改善：LIFF Add friend option從Off改On(aggressive)，登入後可引導加入關聯官方帳號；網站增加外部瀏覽器「重新登入／確認官方好友」按鈕，LINE內則提示使用好友連結。保持openid、chat_message.write，未擴充profile/email。dpl_AKGH8DehMgjx5AU2K6bA7SyhzK4M READY；28tests PASS含SDK重新登入測試。不保存測試帳號個資於文件。

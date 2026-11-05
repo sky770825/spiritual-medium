@@ -1,0 +1,7 @@
+const test=require('node:test'),assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs');
+test('customer re-login uses normal SDK logout/login; identity requires explicit consent and logged-in token',async()=>{
+ let logged=true,logoutCount=0,loginCount=0;const nodes={};for(const id of ['line-identity-status','line-consent-box','line-login','line-relogin','line-identity-consent'])nodes[id]={checked:false,addEventListener(event,fn){this[event]=fn;}};
+ const sdk={init:async()=>{},isInClient:()=>false,getContext:()=>({type:'external'}),isLoggedIn:()=>logged,getIDToken:()=>logged?'test-id-token':null,logout(){logoutCount++;logged=false;},login(options){assert.equal(options.redirectUri,'https://test.local/reserve.html');loginCount++;}};
+ const window={liff:sdk},context={window,location:{origin:'https://test.local'},document:{getElementById:id=>nodes[id],createElement:()=>({}),head:{append(script){queueMicrotask(()=>script.onload());}}},queueMicrotask};vm.runInNewContext(fs.readFileSync(require.resolve('../line-booking'),'utf8'),context);await window.bookingLine.ready;
+ assert.equal(Object.keys(await window.bookingLine.identity()).length,0);nodes['line-identity-consent'].checked=true;assert.equal((await window.bookingLine.identity()).lineIdToken,'test-id-token');await nodes['line-relogin'].click();assert.equal(logoutCount,1);assert.equal(loginCount,1);await assert.rejects(()=>window.bookingLine.identity(),/登入LINE/);
+});
