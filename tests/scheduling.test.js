@@ -52,3 +52,10 @@ test('cannot start next session early and consume previous buffer',()=>{
  assert.throws(()=>transition(s,b2.id,'active',b1.endAt),/開始時間/);
  transition(s,b2.id,'active',b2.startAt);assert.equal(b2.status,'active');
 });
+test('live streaming 20-22 is blocked and 23:00 is the final start',()=>{
+ const s=defaultState();const slots=slotsForDay(s,'2026-11-06',10,now);
+ assert(!slots.some(x=>x.time>='20:00'&&x.time<'22:00'));
+ assert(slots.some(x=>x.time==='22:00'));assert(slots.some(x=>x.time==='23:00'));
+ assert(!slots.some(x=>x.time>'23:00'));
+ const b=reserve(s,request('23:00',30),now,'night');assert(b.busyEndAt<=Date.parse('2026-11-07T00:00:00+08:00'));
+});

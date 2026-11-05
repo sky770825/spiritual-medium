@@ -4,10 +4,11 @@ function fail(message,status=400){const e=new Error(message);e.status=status;thr
 function dateString(ms){return new Date(ms+8*3600000).toISOString().slice(0,10);}
 function validDate(s){if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s)||(!Number.isFinite(Date.parse(s+'T00:00:00+08:00'))||dateString(Date.parse(s+'T00:00:00+08:00'))!==s))fail('日期格式不正確');return s;}
 function mins(s){if(typeof s!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(s))fail('時間格式不正確');return Number(s.slice(0,2))*60+Number(s.slice(3));}
+function endMins(s){return s==='24:00'?1440:mins(s);}
 function timeString(m){return String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');}
-function epoch(date,time){validDate(date);mins(time);return Date.parse(date+'T'+time+':00+08:00');}
-function defaultState(){const weekly={0:[]};for(let i=1;i<7;i++)weekly[i]=[{start:'14:00',end:'18:00'},{start:'19:00',end:'21:00'}];return {version:1,config:{enabled:true,weekly,bufferMinutes:10,leadMinutes:60,horizonDays:28},bookings:[],blocks:[],rate:[]};}
-function validateConfig(c){if(!c||typeof c.enabled!=='boolean'||!Number.isInteger(c.bufferMinutes)||c.bufferMinutes<5||c.bufferMinutes>60||!Number.isInteger(c.leadMinutes)||c.leadMinutes<30||c.leadMinutes>10080||!Number.isInteger(c.horizonDays)||c.horizonDays<1||c.horizonDays>60)fail('排程設定不正確');const weekly={};for(let i=0;i<7;i++){const windows=c.weekly?.[i];if(!Array.isArray(windows)||windows.length>3)fail('每日最多三段開放時間');let last=-1;weekly[i]=windows.map(w=>{const a=mins(w.start),b=mins(w.end);if(a>=b||a<last)fail('開放時間需依序排列且不可重疊');last=b;return {start:w.start,end:w.end};});}return {enabled:c.enabled,weekly,bufferMinutes:c.bufferMinutes,leadMinutes:c.leadMinutes,horizonDays:c.horizonDays};}
+function epoch(date,time){validDate(date);endMins(time);return Date.parse(date+'T'+time+':00+08:00');}
+function defaultState(){const weekly={0:[]};for(let i=1;i<7;i++)weekly[i]=[{start:'14:00',end:'18:00'},{start:'19:00',end:'20:00'},{start:'22:00',end:'24:00'}];return {version:1,config:{enabled:true,weekly,bufferMinutes:10,leadMinutes:60,horizonDays:28,latestStartTime:'23:00'},bookings:[],blocks:[],rate:[]};}
+function validateConfig(c){if(!c||typeof c.enabled!=='boolean'||!Number.isInteger(c.bufferMinutes)||c.bufferMinutes<5||c.bufferMinutes>60||!Number.isInteger(c.leadMinutes)||c.leadMinutes<30||c.leadMinutes>10080||!Number.isInteger(c.horizonDays)||c.horizonDays<1||c.horizonDays>60)fail('排程設定不正確');const weekly={};for(let i=0;i<7;i++){const windows=c.weekly?.[i];if(!Array.isArray(windows)||windows.length>3)fail('每日最多三段開放時間');let last=-1;weekly[i]=windows.map(w=>{const a=mins(w.start),b=endMins(w.end);if(a>=b||a<last)fail('開放時間需依序排列且不可重疊');last=b;return {start:w.start,end:w.end};});}const latestStartTime=c.latestStartTime||'23:00';mins(latestStartTime);return {enabled:c.enabled,weekly,bufferMinutes:c.bufferMinutes,leadMinutes:c.leadMinutes,horizonDays:c.horizonDays,latestStartTime};}
 function occupying(b,now){return ['confirmed','active','completed'].includes(b.status)||(b.status==='pending'&&b.expiresAt>now);}
 function overlaps(a,b,c,d){return a<d&&b>c;}
 function slotsForDay(s,date,duration,now=Date.now()){
@@ -18,7 +19,8 @@ function slotsForDay(s,date,duration,now=Date.now()){
  const busy=s.bookings.filter(b=>b.date===date&&occupying(b,now)).map(b=>[b.startAt,b.busyEndAt]);
  for(const b of s.blocks.filter(b=>b.date===date))busy.push([epoch(date,b.start),epoch(date,b.end)]);
  const result=[];
- for(const w of s.config.weekly[weekday]||[]){for(let m=mins(w.start);m+duration+s.config.bufferMinutes<=mins(w.end);m+=10){
+ for(const w of s.config.weekly[weekday]||[]){for(let m=mins(w.start);m+duration+s.config.bufferMinutes<=endMins(w.end);m+=10){
+  if(m>mins(s.config.latestStartTime||'23:00'))continue;
   const startAt=epoch(date,timeString(m)),endAt=startAt+duration*60000,busyEndAt=endAt+s.config.bufferMinutes*60000;
   if(startAt<now+s.config.leadMinutes*60000||busy.some(([a,b])=>overlaps(startAt,busyEndAt,a,b)))continue;
   result.push({time:timeString(m),end:timeString(m+duration),startAt,endAt,busyEndAt});
