@@ -12,7 +12,7 @@ function validateConfig(c){if(!c||typeof c.enabled!=='boolean'||!Number.isIntege
 function occupying(b,now){return ['confirmed','active','completed'].includes(b.status)||(b.status==='pending'&&b.expiresAt>now);}
 function overlaps(a,b,c,d){return a<d&&b>c;}
 function slotsForDay(s,date,duration,now=Date.now()){
- validDate(date);if(![10,20,30].includes(duration))fail('請選擇10、20或30分鐘');
+ validDate(date);if(![10,20,30,40,50,60].includes(duration))fail('請選擇10至60分鐘，以10分鐘為單位');
  const today=dateString(now),last=dateString(now+(s.config.horizonDays-1)*DAY);
  if(!s.config.enabled||date<today||date>last)return [];
  const weekday=new Date(date+'T12:00:00+08:00').getUTCDay();
@@ -27,6 +27,17 @@ function slotsForDay(s,date,duration,now=Date.now()){
  }}return result;
 }
 function clean(value,label,max,required=true){if(typeof value!=='string'||value.length>max||(required&&!value.trim()))fail(label+'不正確');return value.trim();}
+function maxDurationFor(s,identity,now=Date.now()){
+ if(!identity?.userId||!identity.consentedAt)return 30;
+ const override=(s.returningCustomers||[]).find(x=>x.userId===identity.userId);
+ if(override)return override.allowed?60:30;
+ return s.bookings.some(b=>b.status==='completed'&&b.startAt<now&&b.lineIdentity?.userId===identity.userId)?60:30;
+}
+function setReturning(s,id,allowed,now=Date.now()){
+ const b=s.bookings.find(x=>x.id===id);if(!b?.lineIdentity?.userId)fail('此預約尚未綁定LINE，無法設定回訪資格',409);
+ if(typeof allowed!=='boolean')fail('回訪資格設定不正確');
+ s.returningCustomers=(s.returningCustomers||[]).filter(x=>x.userId!==b.lineIdentity.userId);s.returningCustomers.push({userId:b.lineIdentity.userId,allowed,updatedAt:now});return {id,allowed};
+}
 function reserve(s,r,now=Date.now(),client='unknown',lineIdentity=null){
  if(!r||r.consent!==true)fail('請閱讀並同意服務說明');
  const name=clean(r.name,'姓名',40),contact=clean(r.contact,'LINE聯絡名稱',80),signature=clean(r.signature,'簽名',40),question=clean(r.question??'','問題內容',500,false);
@@ -35,7 +46,8 @@ function reserve(s,r,now=Date.now(),client='unknown',lineIdentity=null){
  const existing=s.bookings.find(b=>b.requestId===r.requestId);
  const legacyFingerprint=!lineIdentity?createHash('sha256').update(JSON.stringify({name,contact,signature,question,date:r.date,time:r.time,duration:r.duration})).digest('hex'):null;
  if(existing){if(existing.fingerprint!==fingerprint&&!(legacyFingerprint===existing.fingerprint&&!existing.lineIdentity))fail('重複請求內容不一致',409);return existing;}
- if(![10,20,30].includes(r.duration))fail('服務時間不正確');
+ if(![10,20,30,40,50,60].includes(r.duration))fail('服務時間不正確');
+ if(r.duration>maxDurationFor(s,lineIdentity,now))fail('首次預約最多30分鐘；40至60分鐘需登入LINE並具回訪資格',403);
  const slot=slotsForDay(s,r.date,r.duration,now).find(x=>x.time===r.time);if(!slot)fail('這個時段已被預約或未開放，請重新選擇',409);
  s.rate=(s.rate||[]).filter(x=>x.at>now-3600000);
  if(s.rate.filter(x=>x.client===client).length>=5)fail('預約申請較頻繁，請稍後再試或聯絡LINE',429);
@@ -65,4 +77,4 @@ function addBlock(s,r,now=Date.now()){
  if(s.blocks.some(x=>x.date===r.date&&overlaps(a,b,epoch(x.date,x.start),epoch(x.date,x.end))))fail('封鎖時間重疊',409);
  const block={id:randomUUID(),date:r.date,start:r.start,end:r.end,reason:clean(r.reason??'休息','封鎖原因',80,false)};s.blocks.push(block);return block;
 }
-module.exports={defaultState,validateConfig,slotsForDay,reserve,transition,addBlock,archiveBooking,dateString,epoch,occupying,fail};
+module.exports={defaultState,validateConfig,slotsForDay,reserve,transition,addBlock,archiveBooking,maxDurationFor,setReturning,dateString,epoch,occupying,fail};

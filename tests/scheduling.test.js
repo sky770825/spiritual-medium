@@ -3,8 +3,8 @@ const assert=require('node:assert/strict');
 const {defaultState,slotsForDay,reserve,validateConfig,transition}=require('../server/scheduling');
 const now=Date.parse('2026-11-05T08:00:00+08:00');
 const request=(time='14:00',duration=20)=>({date:'2026-11-06',time,duration,name:'測試',contact:'測試LINE名稱',question:'',signature:'測試',consent:true,requestId:crypto.randomUUID()});
-test('only 10/20/30 minute appointments; lead time and buffer must fit hours',()=>{
- const s=defaultState(); assert.throws(()=>slotsForDay(s,'2026-11-06',40,now));
+test('appointments use 10-minute increments; lead time and buffer must fit hours',()=>{
+ const s=defaultState(); assert.throws(()=>slotsForDay(s,'2026-11-06',45,now));
  const slots=slotsForDay(s,'2026-11-06',30,now);
  assert(slots.some(x=>x.time==='14:00')); assert(!slots.some(x=>x.time==='17:30'));
  assert(!slotsForDay(s,'2026-11-05',10,Date.parse('2026-11-05T13:30:00+08:00')).some(x=>x.time==='14:00'));

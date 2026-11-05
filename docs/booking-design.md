@@ -50,3 +50,13 @@ LINE channel仍為Developing；發布確認提示不能切回開發模式，已�
 未將API受理誤記為收到：本機LINE與網頁測試登入為不同帳號；iPhone Mirroring首次啟動回無法連接iPhone，待使用者將手機放在Mac附近並啟用Wi-Fi及藍牙後續查實際收訊。未完成LINE手機內來源聊天室申請摘要傳送測試。
 
 實測改善：LIFF Add friend option從Off改On(aggressive)，登入後可引導加入關聯官方帳號；網站增加外部瀏覽器「重新登入／確認官方好友」按鈕，LINE內則提示使用好友連結。保持openid、chat_message.write，未擴充profile/email。dpl_AKGH8DehMgjx5AU2K6bA7SyhzK4M READY；28tests PASS含SDK重新登入測試。不保存測試帳號個資於文件。
+
+## 2026-11-06 回訪長時段與Google名單
+
+使用者確認首次最多30分鐘、回訪最多60分鐘。新增40/50/60分鐘，每10分鐘300元。回訪只由伺服器驗證的LINE身分判斷：過去已完成服務，或老師從已綁定預約明確開放；教師撤銷優先。未綁定／只改前端旗標不能超過30。60分鐘必須連同緩衝完整放進開放時段，不可跨直播、封鎖或午夜。後台完整內容可開放／關閉回訪資格。
+
+前端明確分為選時長、日期與開始時間、填資料；時段顯示開始–結束，說明已約／暫留／緩衝會隱藏。切換時長清空舊時段後重載，避免把舊10分鐘結束時間當成30或60分鐘。手機390px驗收無橫向溢出；真實LINE重新登入後首次資格回30，長按鈕維持禁用。
+
+Google名單已建立為僅供使用者的原生試算表，先同步當下正式名單一次，狀態明示自動更新待授權。專用read-only token保護/api/booking-roster；只匯出核對所需欄位、不含問題／簽名／user ID／憑證，文字防公式注入。後台提供Google名單連結及CSV下載。Apps Script每5分鐘同步程式已存入綁定專案，首次Google授權及指令碼專用金鑰保存尚待使用者答覆，未建立觸發器。
+
+驗證：33 tests PASS，含首次拒絕60、已驗證回訪60成功、手動授權與撤銷、長時段buffer排除、名單匿名401／專用key200且不能管理預約、公式安全、API整合。獨立review無blocker。正式 dpl_H39n4zptkRwcAigZYzp1D1sQgLiM READY；Google連結已讀回、60分鐘availability200、未登入資格查詢401。未改動現有正式預約或冒充回訪顧客。
