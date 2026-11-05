@@ -1,0 +1,23 @@
+const test=require('node:test'),assert=require('node:assert/strict');const {randomUUID}=require('node:crypto');
+const {defaultState,slotsForDay,dateString}=require('../server/scheduling');
+test('full API path: verified booking -> approve -> accepted -> cancel -> accepted -> remove and restore; no public identity leak',async()=>{
+ const store=require('../server/booking-store'),original={read:store.read,mutate:store.mutate,fetch:global.fetch,password:process.env.BOOKING_ADMIN_PASSWORD,token:process.env.LINE_CHANNEL_ACCESS_TOKEN};
+ let state=defaultState(),tail=Promise.resolve(),pushes=[],botId='@740ihcar';store.read=async()=>({state:structuredClone(state)});store.mutate=fn=>{const job=tail.then(()=>{const copy=structuredClone(state),result=fn(copy);copy.version++;state=copy;return structuredClone(result);});tail=job.catch(()=>{});return job;};
+ process.env.BOOKING_ADMIN_PASSWORD='test-admin';process.env.LINE_CHANNEL_ACCESS_TOKEN='test-bot';const uid='U'+'c'.repeat(32);
+ global.fetch=async(url,opts)=>{if(url.endsWith('/bot/info'))return {ok:true,json:async()=>({basicId:botId})};if(url.includes('/verify')){if(new URLSearchParams(opts.body).get('id_token')==='forged')return {ok:false,status:401};return {ok:true,json:async()=>({iss:'https://access.line.me',aud:'2012387050',sub:uid,exp:Date.now()/1000+60})};}pushes.push({body:JSON.parse(opts.body),key:opts.headers['X-Line-Retry-Key']});return {ok:true,status:200,headers:new Headers()};};
+ const booking=require('../api/booking'),admin=require('../api/booking-admin');async function call(handler,body,authed=true){let raw;const req={method:body?'POST':'GET',url:'/api/booking',headers:{host:'test.local',origin:'https://test.local',...(authed?{authorization:'Bearer test-admin'}:{})},body};const res={setHeader(){},end(value){raw=JSON.parse(value);}};await handler(req,res);return {status:res.statusCode,data:raw};}
+ try{
+  assert.equal((await call(admin,{action:'line-health'},false)).status,401);assert.equal((await call(admin,{action:'line-health'})).data.lineReady,true);botId='@wrong';assert.equal((await call(admin,{action:'line-health'})).data.lineReady,false);botId='@740ihcar';
+  let date,slot;for(let i=1;i<7;i++){date=dateString(Date.now()+i*86400000);slot=slotsForDay(state,date,10)[0];if(slot)break;}
+  const input={name:'Test',contact:'Display name',signature:'Test',question:'PRIVATE',consent:true,requestId:randomUUID(),date,time:slot.time,duration:10,lineConsent:true,lineIdToken:'verified'};
+  assert.equal((await call(booking,{...input,lineIdToken:'forged'},false)).status,401);assert.equal(state.bookings.length,0);
+  const made=await call(booking,input,false);assert.equal(made.status,201);assert.equal(made.data.booking.lineBound,true);assert.equal(JSON.stringify(state).includes('verified"'),false);const id=made.data.booking.id;
+  assert.equal((await call(admin,{action:'status',id,status:'confirmed'},false)).status,401);
+  assert.equal((await call(admin,{action:'status',id,status:'confirmed'})).status,200);assert.equal(state.bookings[0].notification.state,'accepted');assert.equal(pushes.length,1);assert.equal(pushes[0].body.to,uid);assert.ok(!JSON.stringify(pushes).includes('PRIVATE'));
+  await call(admin,{action:'retry-notification',id});assert.equal(pushes.length,1);
+  await call(admin,{action:'status',id,status:'cancelled'});assert.equal(pushes.length,2);assert.notEqual(pushes[0].key,pushes[1].key);assert.match(pushes[1].body.messages[0].text,/已取消/);
+  await call(admin,{action:'archive',id,archived:true});assert.ok(state.bookings[0].archivedAt);await call(admin,{action:'archive',id,archived:false});assert.equal(state.bookings[0].archivedAt,undefined);
+  const publicData=await call(booking,null,false);assert.equal(JSON.stringify(publicData).includes(uid),false);assert.equal(JSON.stringify(publicData).includes('PRIVATE'),false);
+  const privateData=await call(admin,null);assert.equal(privateData.data.bookings[0].lineIdentity.userId,uid);assert.equal(privateData.data.bookings[0].notification.text,undefined);
+ }finally{store.read=original.read;store.mutate=original.mutate;global.fetch=original.fetch;for(const [key,value]of [['BOOKING_ADMIN_PASSWORD',original.password],['LINE_CHANNEL_ACCESS_TOKEN',original.token]])if(value===undefined)delete process.env[key];else process.env[key]=value;}
+});

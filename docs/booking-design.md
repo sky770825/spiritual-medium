@@ -28,3 +28,11 @@ LINE channel仍為Developing；發布確認提示不能切回開發模式，已�
 電腦與手機使用同一個登入後台及 API；電腦顯示主行程與側欄，手機改為直式卡片。全天行程按時間列出 00:00–24:00 的預約、空檔、緩衝、私人封鎖及直播時段；七日總覽方便跨日檢視。卡片包含起訖、分鐘、狀態、問題摘要，展開可看完整內容。提供待確認篩選、搜尋、下一場與複製當日時間表（不含私人問題、聯絡資訊或簽名）。
 
 驗證：18 項 Node 測試通過；本機示範涵蓋長問題、長姓名、已取消／到期、進行中及跨日預約。桌面 1280px 與手機 390px 實際瀏覽驗證；示範資料僅在 tests/dev-server.js 的 BOOKING_UI_FIXTURES=1 啟用，部署排除 tests，正式資料未加入示範預約。
+
+## 2026-11-05 身分與審核結果通知
+
+新預約可勾選綁定LINE，前端只傳ID token，伺服器呼叫LINE verify endpoint，核對iss/aud/exp/sub後保存user ID和同意時間，不保存token。未登入／未同意仍可人工預約，不猜測舊紀錄收件人。老師核准／取消先存預約及通知事件，再用官方Messaging API推播最小時間摘要。CAS mutation中沒有外部發訊；租約避免並行，固定UUID避免不確定結果重送重複，23小時後轉人工，開始交流後舊的未發通知標示superseded。接受成功只標示LINE已受理。失敗可由後台重試；沒有背景自動重送。已取消／到期／完成可移除並還原，仍保留紀錄。這不是資料永久清除功能。
+
+正式設定缺口查核：2026-11-05 本機匯出的 LINE_CHANNEL_ACCESS_TOKEN 為空，但正式runtime顯示有設定；新增管理者 line-health 動作呼叫 bot/info，正式結果 line_http_401。以正式驗證為準，不能因匯出空白便斷言runtime不存在。既有Messaging API channel有既發憑證，尚待使用者同意安全存入Vercel。LINE Login應用仍Developing，發布的不可逆平台確認也待回答。程式部署不代表此兩項已啟用，手機客戶端實際通知尚未驗證。
+
+參考LINE官方文件：https://developers.line.biz/en/docs/line-login/verify-id-token/ 、https://developers.line.biz/en/reference/messaging-api/nojs/#send-push-message 。

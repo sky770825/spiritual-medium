@@ -1,5 +1,6 @@
+const {queueNotification,dispatchNotification}=require('../server/booking-line');
 const store=require('../server/booking-store');
-const {validateConfig,transition,addBlock,fail}=require('../server/scheduling');
+const {validateConfig,transition,addBlock,archiveBooking,fail}=require('../server/scheduling');
 const {send,body,origin,equal,secret,cookie,authenticated,client,handleError}=require('../server/booking-api');
 module.exports=async(req,res)=>{try{
  if(req.method==='POST'){
@@ -13,18 +14,24 @@ module.exports=async(req,res)=>{try{
   }
   if(!authenticated(req))fail('請先登入預約管理',401);
   if(input.action==='logout'){res.setHeader('Set-Cookie','booking_admin=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');return send(res,200,{ok:true});}
+  if(input.action==='line-health'){
+   if(!process.env.LINE_CHANNEL_ACCESS_TOKEN)return send(res,200,{ok:true,lineReady:false,reason:'not_configured'});
+   try{const r=await fetch('https://api.line.me/v2/bot/info',{headers:{Authorization:'Bearer '+process.env.LINE_CHANNEL_ACCESS_TOKEN},signal:AbortSignal.timeout(8000)});const d=r.ok?await r.json():{};return send(res,200,{ok:true,lineReady:r.ok&&d.basicId==='@740ihcar',reason:r.ok?(d.basicId==='@740ihcar'?'ready':'wrong_official_account'):'line_http_'+r.status});}catch{return send(res,200,{ok:true,lineReady:false,reason:'network_unknown'});}
+  }
   const result=await store.mutate(s=>{
    if(input.action==='config'){if(input.version!==s.version)fail('其他裝置已更新，請重新整理後再儲存',409);s.config=validateConfig(input.config);return {saved:true};}
-   if(input.action==='status'){const b=transition(s,input.id,input.status);return {id:b.id,status:b.status};}
+   if(input.action==='status'){const b=transition(s,input.id,input.status);queueNotification(b);return {id:b.id,status:b.status};}
+   if(input.action==='retry-notification'){const b=s.bookings.find(x=>x.id===input.id);if(!b?.notification||b.notification.forStatus!==b.status)fail('沒有可重送的通知',409);return {id:b.id,status:b.status};}
+   if(input.action==='archive'){if(typeof input.archived!=='boolean')fail('移除設定不正確');return archiveBooking(s,input.id,input.archived);}
    if(input.action==='block')return addBlock(s,input);
    if(input.action==='unblock'){if(!s.blocks.some(b=>b.id===input.id))fail('封鎖已移除',404);s.blocks=s.blocks.filter(b=>b.id!==input.id);return {saved:true};}
    fail('操作不正確');
-  });return send(res,200,{ok:true,result});
+  });let notificationDeferred=false;if(['status','retry-notification'].includes(input.action)){try{await dispatchNotification(store,result.id);}catch{notificationDeferred=true;}}return send(res,200,{ok:true,result,notificationDeferred});
  }
  if(req.method==='GET'){
   if(!authenticated(req))fail('請先登入預約管理',401);
   const {state}=await store.read();
-  return send(res,200,{ok:true,version:state.version,serverNow:Date.now(),config:state.config,blocks:state.blocks,bookings:state.bookings.map(({fingerprint,requestId,...b})=>({...b,status:b.status==='pending'&&b.expiresAt<=Date.now()?'expired':b.status}))});
+  return send(res,200,{ok:true,lineNotificationsConfigured:Boolean(process.env.LINE_CHANNEL_ACCESS_TOKEN),version:state.version,serverNow:Date.now(),config:state.config,blocks:state.blocks,bookings:state.bookings.map(({fingerprint,requestId,...b})=>({...b,notification:b.notification?(({text,owner,...n})=>n)(b.notification):null,status:b.status==='pending'&&b.expiresAt<=Date.now()?'expired':b.status}))});
  }
  res.setHeader('Allow','GET, POST');send(res,405,{ok:false,error:'不支援的操作'});
  }catch(e){handleError(res,e);}};

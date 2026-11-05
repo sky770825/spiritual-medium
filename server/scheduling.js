@@ -27,23 +27,25 @@ function slotsForDay(s,date,duration,now=Date.now()){
  }}return result;
 }
 function clean(value,label,max,required=true){if(typeof value!=='string'||value.length>max||(required&&!value.trim()))fail(label+'不正確');return value.trim();}
-function reserve(s,r,now=Date.now(),client='unknown'){
+function reserve(s,r,now=Date.now(),client='unknown',lineIdentity=null){
  if(!r||r.consent!==true)fail('請閱讀並同意服務說明');
  const name=clean(r.name,'姓名',40),contact=clean(r.contact,'LINE聯絡名稱',80),signature=clean(r.signature,'簽名',40),question=clean(r.question??'','問題內容',500,false);
  if(!/^[0-9a-f-]{36}$/i.test(r.requestId||''))fail('請重新載入預約頁');
- const fingerprint=createHash('sha256').update(JSON.stringify({name,contact,signature,question,date:r.date,time:r.time,duration:r.duration})).digest('hex');
+ const fingerprint=createHash('sha256').update(JSON.stringify({name,contact,signature,question,date:r.date,time:r.time,duration:r.duration,lineUserId:lineIdentity?.userId||null})).digest('hex');
  const existing=s.bookings.find(b=>b.requestId===r.requestId);
- if(existing){if(existing.fingerprint!==fingerprint)fail('重複請求內容不一致',409);return existing;}
+ const legacyFingerprint=!lineIdentity?createHash('sha256').update(JSON.stringify({name,contact,signature,question,date:r.date,time:r.time,duration:r.duration})).digest('hex'):null;
+ if(existing){if(existing.fingerprint!==fingerprint&&!(legacyFingerprint===existing.fingerprint&&!existing.lineIdentity))fail('重複請求內容不一致',409);return existing;}
  if(![10,20,30].includes(r.duration))fail('服務時間不正確');
  const slot=slotsForDay(s,r.date,r.duration,now).find(x=>x.time===r.time);if(!slot)fail('這個時段已被預約或未開放，請重新選擇',409);
  s.rate=(s.rate||[]).filter(x=>x.at>now-3600000);
  if(s.rate.filter(x=>x.client===client).length>=5)fail('預約申請較頻繁，請稍後再試或聯絡LINE',429);
- const active=s.bookings.filter(b=>b.contact===contact&&b.startAt>now&&occupying(b,now));if(active.length>=2)fail('已有兩筆未來預約，請先透過LINE確認',429);
- const booking={id:randomUUID(),requestId:r.requestId,fingerprint,name,contact,signature,question,date:r.date,time:r.time,duration:r.duration,price:r.duration/10*300,...slot,status:'pending',createdAt:now,expiresAt:Math.min(now+24*3600000,slot.startAt),consentVersion:'2026-11-05-v2',signedDate:dateString(now)};
+ const active=s.bookings.filter(b=>(lineIdentity?b.lineIdentity?.userId===lineIdentity.userId:b.contact===contact)&&b.startAt>now&&occupying(b,now));if(active.length>=2)fail('已有兩筆未來預約，請先透過LINE確認',429);
+ const booking={id:randomUUID(),requestId:r.requestId,fingerprint,name,contact,signature,question,date:r.date,time:r.time,duration:r.duration,price:r.duration/10*300,...slot,status:'pending',createdAt:now,expiresAt:Math.min(now+24*3600000,slot.startAt),...(lineIdentity?{lineIdentity}:{}),consentVersion:'2026-11-05-v2',signedDate:dateString(now)};
  s.bookings.push(booking);s.rate.push({client,at:now});return booking;
 }
 function transition(s,id,status,now=Date.now()){
  const b=s.bookings.find(x=>x.id===id);if(!b)fail('找不到預約',404);
+ if(b.notification?.state==='sending'&&b.notification.leaseUntil>now)fail('通知正在傳送，請稍後重新整理再操作',409);
  const current=b.status==='pending'&&b.expiresAt<=now?'expired':b.status;
  const allowed={pending:['confirmed','cancelled'],confirmed:['active','cancelled'],active:['completed','cancelled'],completed:[],cancelled:[],expired:[]};
  if(!allowed[current]?.includes(status))fail('此預約狀態已變更，請重新整理',409);
@@ -51,10 +53,16 @@ function transition(s,id,status,now=Date.now()){
  if(status==='active'&&(now<b.startAt||now>=b.endAt))fail('只能在排定的開始時間至結束前啟動',409);
  b.status=status;b.updatedAt=now;if(status==='active')b.actualStartAt=now;if(status==='completed')b.actualEndAt=now;return b;
 }
+function archiveBooking(s,id,archived,now=Date.now()){
+ const b=s.bookings.find(x=>x.id===id);if(!b)fail('找不到預約',404);
+ const status=b.status==='pending'&&b.expiresAt<=now?'expired':b.status;
+ if(archived&&!['cancelled','expired','completed'].includes(status))fail('請先取消預約，才能移到已移除紀錄',409);
+ if(archived)b.archivedAt=now;else delete b.archivedAt;return {id:b.id,archived:Boolean(b.archivedAt)};
+}
 function addBlock(s,r,now=Date.now()){
  validDate(r.date);const a=epoch(r.date,r.start),b=epoch(r.date,r.end);if(a>=b)fail('封鎖結束時間需晚於開始');
  if(s.bookings.some(x=>x.date===r.date&&occupying(x,now)&&overlaps(a,b,x.startAt,x.busyEndAt)))fail('封鎖時間與現有預約重疊，請先處理預約',409);
  if(s.blocks.some(x=>x.date===r.date&&overlaps(a,b,epoch(x.date,x.start),epoch(x.date,x.end))))fail('封鎖時間重疊',409);
  const block={id:randomUUID(),date:r.date,start:r.start,end:r.end,reason:clean(r.reason??'休息','封鎖原因',80,false)};s.blocks.push(block);return block;
 }
-module.exports={defaultState,validateConfig,slotsForDay,reserve,transition,addBlock,dateString,epoch,occupying,fail};
+module.exports={defaultState,validateConfig,slotsForDay,reserve,transition,addBlock,archiveBooking,dateString,epoch,occupying,fail};
