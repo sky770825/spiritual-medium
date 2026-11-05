@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>通靈問事・預約登記｜宇宙玉皇大帝原始大天尊無上至尊</title>
+<meta name="description" content="通靈問事每10分鐘300元，首次最多30分鐘。填寫方便時段，透過LINE由老師親自確認，先解惑、後付費。">
+<link rel="stylesheet" href="booking.css">
+</head>
+<body>
+<header class="nav"><a class="wordmark" href="/">宇宙玉皇大帝<span>原始大天尊・無上至尊</span></a><a class="nav-link" href="/#services">服務與費用 ↗</a></header>
+<main class="booking-layout">
+<aside class="booking-intro"><p class="eyebrow">福生無極 · 道法自然</p><h1>為心中的疑問，<br>留一段交流的時間。</h1><p class="muted">遠端一對一 · 採事先預約制</p><div class="price-strip"><span>10分鐘<strong>NT$300</strong></span><span>20分鐘<strong>NT$600</strong></span><span>30分鐘<strong>NT$900</strong></span></div><p class="notice">首次問事最多 30 分鐘，主要問題優先。<br>先解惑，服務結束後再依雙方確認的服務時間付費。</p><img class="poster" src="assets/images/booking-guide-v2.png" alt="通靈問事預約登記與收費說明" width="1024" height="1536"><a class="text-link" href="assets/images/booking-guide-v2.png" target="_blank" rel="noopener">放大閱讀預約圖卡 ↗</a></aside>
+<section class="form-panel" aria-labelledby="form-title"><p class="eyebrow">預約時間登記</p><h2 id="form-title">告訴我們你的方便時段</h2><p class="intro">填寫後會產生預約摘要，請複製並傳送至 LINE。老師親自回覆確認後，才算預約成立。</p>
+<form id="booking-form">
+<label for="name">預約姓名 <span>必填</span></label><input id="name" name="name" autocomplete="name" maxlength="40" required placeholder="請填寫您的姓名">
+<fieldset><legend>選擇服務 <span>必填</span></legend><div class="choice-grid"><label class="choice"><input type="radio" name="service" value="通靈問事10分鐘｜NT$300" checked required><span>10 分鐘<strong>NT$300</strong></span></label><label class="choice"><input type="radio" name="service" value="通靈問事20分鐘｜NT$600"><span>20 分鐘<strong>NT$600</strong></span></label><label class="choice"><input type="radio" name="service" value="通靈問事30分鐘｜NT$900"><span>30 分鐘<strong>NT$900</strong></span></label></div></fieldset>
+<label for="availability">方便日期類型</label><select id="availability"><option>平日／假日皆可</option><option>平日</option><option>假日</option></select>
+<fieldset><legend>希望預約日期 <span>至少填一個</span></legend><p class="field-help">建議提供未來 1～2 週內，2～3 個方便的日期。</p><div class="dates"><label for="date1">第一選擇<input type="date" id="date1" required></label><label for="date2">第二選擇（選填）<input type="date" id="date2"></label><label for="date3">第三選擇（選填）<input type="date" id="date3"></label></div></fieldset>
+<label for="period">方便時段</label><select id="period"><option>上午</option><option>下午</option><option>晚上</option><option>皆可</option></select>
+<label for="question">想交流的主要問題 <span>選填</span></label><textarea id="question" maxlength="500" rows="4" placeholder="可先簡述問題，請勿填寫身分證字號、完整地址或其他敏感資料。"></textarea>
+<details class="terms" open><summary>預約與服務說明</summary><ul><li>提交資料是預約申請，時間須經老師親自確認。</li><li>問事每 10 分鐘 NT$300；首次最多 30 分鐘。延長時間或調整費用，需先由雙方確認。</li><li>不需預先匯款，服務結束後再支付費用。若需改期或取消，請提前以 LINE 告知。</li><li>本服務為民俗信仰與靈性交流，不保證特定結果，亦不取代醫療、法律或財務等專業建議。</li><li>本頁不會將填寫資料儲存到網站伺服器；產生的摘要由您自行傳送到 LINE，供預約聯繫使用。照片請在確認官方聊天室後另行提供。</li></ul></details>
+<label class="consent"><input type="checkbox" id="consent" required><span>我已閱讀並了解上述服務內容、費用與預約方式。</span></label>
+<div class="signature-row"><div><label for="signature">簽名（正楷姓名）</label><input id="signature" maxlength="40" autocomplete="off" required placeholder="輸入您的姓名"></div><div><label for="signed-date">填寫日期</label><input id="signed-date" type="date" required></div></div>
+<button class="button primary" type="submit">產生預約摘要 <span>→</span></button><p class="field-help">此步驟不會送出訊息或完成預約。</p>
+</form>
+<section id="result" class="result" hidden aria-labelledby="result-title"><p class="eyebrow">還差最後一步</p><h2 id="result-title">將摘要傳送至 LINE</h2><p>請先複製內容，開啟官方聊天室後貼上並送出。等待老師回覆確認預約時間。</p><label for="summary">預約摘要</label><textarea id="summary" readonly rows="15"></textarea><button id="copy" class="button primary" type="button">複製預約摘要</button><p id="copy-status" role="status" aria-live="polite"></p><a class="button secondary" href="https://line.me/R/ti/p/@740ihcar" target="_blank" rel="noopener">開啟 LINE 官方帳號 ↗</a></section>
+</section></main>
+<footer>宇宙玉皇大帝原始大天尊無上至尊<br><span>福生無極 · 道法自然</span></footer><script src="booking.js"></script>
+</body></html>
