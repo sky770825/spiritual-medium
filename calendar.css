@@ -10,3 +10,126 @@
 .time-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.time-slot{font-size:13px;padding:12px 4px}.extended:disabled{opacity:.55}.duration-picker{gap:8px}#returning-status{display:block!important;line-height:1.8}.scheduler-main #time-duration-note{font-weight:600}.duration.extended span{font-size:12px}@media(max-width:760px){.time-slots{grid-template-columns:repeat(2,minmax(0,1fr))}.event-profile>.eyebrow{margin-top:16px}}
 
 .time-slots{grid-template-columns:1fr}.line-access{border:1px solid var(--line);padding:12px;margin:20px 0}.line-access summary{font-size:13px;font-weight:600;cursor:pointer}.line-access #line-identity-panel{display:block;margin:12px 0 0;padding:0;border:0;background:transparent}.line-access #line-identity-panel p{font-size:12px;line-height:1.8}.line-access .consent{font-size:12px}.line-access .small-button{margin-bottom:8px;padding:8px}.line-access #line-identity-panel a{margin:8px 0}.line-access h3{font-size:15px}@media(max-width:760px){.time-slots{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* Responsive booking layout: keep choosing a date close to choosing a duration. */
+.booking-page .event-profile{padding:32px 24px}
+.booking-page .event-profile h1{font-size:30px;line-height:1.45;margin:12px 0 18px}
+.booking-page .event-profile>.muted{font-size:13px;line-height:1.8}
+.booking-hours{display:flex;flex-wrap:wrap;gap:2px 8px}
+.booking-hours span{white-space:nowrap}
+.booking-hours span:first-child{width:100%}
+.booking-page .duration-picker{grid-template-columns:repeat(2,minmax(0,1fr));margin:16px 0;gap:8px}
+.booking-page .duration{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:72px;padding:10px 5px;text-align:center}
+.booking-page .duration span{font-size:13px}
+.booking-page .duration strong{font-size:17px;font-variant-numeric:tabular-nums}
+.booking-page .extended:disabled{opacity:1;color:#77786f;background:#eee9de;border-color:#d6cdbb}
+.booking-page #returning-status{font-size:12px;line-height:1.7}
+.booking-payment-note{font-size:12px;line-height:1.8;color:#675533;margin:14px 0}
+.booking-help{border-top:1px solid var(--line);margin-top:14px}
+.booking-help>summary{padding:12px 0;font-size:13px;min-height:44px}
+.booking-help .policy-card{margin:6px 0 12px}
+.booking-help .text-link{display:block;font-size:12px;margin-bottom:10px}
+.booking-page .selection-summary{margin:24px 0 0;padding:12px 16px;background:#f1ecdf}
+.booking-page .selection-summary .eyebrow{font-size:11px}
+.booking-page .selection-summary p{margin:4px 0;font-size:14px;font-variant-numeric:tabular-nums}
+.booking-page .details-section{margin-top:24px}
+.booking-page .calendar-time-layout{grid-template-columns:minmax(0,1.2fr) minmax(240px,.8fr)}
+.booking-page .time-slots{grid-template-columns:repeat(2,minmax(0,1fr));max-height:336px;overscroll-behavior:contain}
+.booking-page .time-slot{min-height:46px;font-size:13px;font-variant-numeric:tabular-nums}
+.booking-page .icon-button{width:44px;height:44px}
+.booking-page .line-access summary{min-height:24px}
+.booking-page .line-access .small-button{min-height:44px;padding:9px 12px}
+
+/* Teacher controls use one visual language and generous touch targets. */
+.teacher-page .admin-grid{grid-template-columns:minmax(0,1fr) 320px}
+.teacher-page .admin-toolbar{display:flex;align-items:flex-start;gap:12px;margin:18px 0 8px}
+.date-navigation{display:grid;grid-template-columns:44px minmax(150px,180px) 44px;gap:8px;align-items:center}
+.teacher-page .date-navigation input{max-width:none;min-height:44px;font-size:15px;padding:8px 10px}
+.quick-navigation{display:flex;flex-wrap:wrap;gap:8px}
+.teacher-page .small-button,.teacher-page .agenda-actions button{min-height:44px;font-size:13px;padding:9px 12px;line-height:1.6}
+.admin-tools{border:1px solid var(--line);border-radius:3px;background:#fffdf8;margin-left:auto}
+.admin-tools>summary{font-size:13px;padding:10px 12px;min-height:44px;white-space:nowrap}
+.admin-tools-content{display:grid;gap:8px;padding:0 10px 10px}
+.admin-tools-content .small-button{display:flex;align-items:center;justify-content:center;background:transparent;color:var(--ink);text-align:center}
+.teacher-page #sync-status{font-size:12px;margin:6px 0 12px}
+.teacher-page .day-stat span{font-size:12px}
+.teacher-page .booking-contact{font-size:12px}
+.teacher-page .booking-details summary{font-size:13px;min-height:44px;display:flex;align-items:center;gap:6px}
+.teacher-page .booking-details summary::before{content:'▸';font-size:11px}
+.teacher-page .booking-details[open] summary::before{content:'▾'}
+.teacher-page .booking-details summary::marker{content:''}
+.teacher-page .notification-status{font-size:12px;line-height:1.8;padding:10px 12px}
+.teacher-page .booking-card .status-badge{font-size:11px}
+.teacher-page.week-mode .admin-grid{grid-template-columns:1fr}
+.teacher-page .filter-controls input,.teacher-page .filter-controls select{min-height:44px;font-size:14px}
+.teacher-page .week-day{min-height:70px}
+.teacher-page .week-day span,.teacher-page .week-day em{font-size:11px}
+.teacher-page .booking-time strong{font-variant-numeric:tabular-nums}
+.booking-page button:not(:disabled):active,.teacher-page button:not(:disabled):active{transform:translateY(1px)}
+@media(max-width:1100px){
+ .booking-page .calendar-time-layout{grid-template-columns:1fr;gap:24px}
+ .booking-page .time-panel{padding:20px 0 0;border-left:0;border-top:1px solid var(--line)}
+ .booking-page .time-slots{grid-template-columns:repeat(3,minmax(0,1fr));max-height:240px}
+ .teacher-page .admin-grid{grid-template-columns:1fr}
+ .teacher-page .side-panel{position:static}
+ .teacher-page .side-panel .next-session,.teacher-page .side-panel .timer-card:not(.has-active){display:none}
+ .teacher-page .mobile-next-session{display:block;padding:12px 16px;background:#ede6d7;border-left:2px solid var(--gold);margin:12px 0}
+ .teacher-page .mobile-next-session .eyebrow{font-size:11px;margin:0 0 3px}
+ .teacher-page .mobile-next-session strong{font:600 20px/1.5 'Noto Serif TC',serif}
+ .teacher-page .mobile-next-session>p:not(.eyebrow){font-size:13px;color:#61737e;margin:3px 0}
+ .teacher-page .admin-tools{margin-left:0}
+}
+@media(min-width:761px) and (max-width:1279px){.teacher-page .week-board{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:760px){
+ .booking-page .event-profile{padding:18px 18px 14px}
+ .booking-page .event-profile>.eyebrow:first-child{display:none}
+ .booking-page .event-profile h1{font-size:26px;margin:0 0 10px;line-height:1.5;text-wrap:balance}
+ .booking-page .event-profile>.muted{font-size:12px;line-height:1.8;margin:8px 0 12px}
+ .booking-page .line-access{padding:10px 12px;margin:12px 0}
+ .booking-page .event-profile>.eyebrow{margin:12px 0 8px;font-size:11px}
+ .booking-page .duration-picker{grid-template-columns:repeat(3,minmax(0,1fr));margin:10px 0;gap:6px}
+ .booking-page .duration{min-height:64px;padding:8px 3px}
+ .booking-page .duration span,.booking-page .duration.extended span{font-size:12px}
+ .booking-page .duration strong{font-size:16px}
+ .booking-page #returning-status{font-size:12px;line-height:1.65;margin:10px 0}
+ .booking-page .booking-payment-note{font-size:12px;margin:10px 0}
+ .booking-page .booking-help{margin-top:10px}
+ .booking-page .booking-help>summary{font-size:12px;padding:10px 0}
+ .booking-page .scheduler-main{padding:22px 18px 32px}
+ .booking-page .status-line{font-size:12px;margin:12px 0 18px}
+ .booking-page .calendar-days{gap:5px}
+ .booking-page .day{font-size:15px;min-height:36px;max-height:48px}
+ .booking-page .time-slots{grid-template-columns:repeat(2,minmax(0,1fr));max-height:288px;gap:8px}
+ .booking-page .time-slot{font-size:14px;min-height:48px}
+ .booking-page input:not([type=checkbox]),.booking-page textarea{font-size:16px}
+ .booking-page .selection-summary{margin-top:22px}
+ .teacher-page .admin-toolbar{display:grid;grid-template-columns:1fr;gap:10px;margin:14px 0 6px}
+ .teacher-page .date-navigation{grid-template-columns:44px minmax(0,1fr) 44px;width:100%}
+ .teacher-page .date-navigation input{font-size:16px}
+ .teacher-page .quick-navigation{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+ .teacher-page .quick-navigation button{font-size:12px;padding:9px 4px}
+ .teacher-page .admin-tools{width:100%}
+ .teacher-page .admin-tools>summary{font-size:13px}
+ .teacher-page .admin-tools-content{grid-template-columns:1fr}
+ .teacher-page .day-stat{padding:10px 8px;gap:6px;flex-wrap:wrap}
+ .teacher-page .day-stat strong{font-size:24px}
+ .teacher-page .day-stat span{font-size:11px}
+ .teacher-page .week-strip{gap:4px}
+ .teacher-page .week-day{padding:8px 2px;min-height:70px}
+ .teacher-page .week-day strong{font-size:18px}
+ .teacher-page .week-day span,.teacher-page .week-day em{font-size:10px}
+ .teacher-page .agenda-title h2{font-size:21px}
+ .teacher-page .filter-controls input,.teacher-page .filter-controls select{font-size:16px}
+ .teacher-page .filter-controls select{min-width:125px;width:125px}
+ .teacher-page .booking-card{grid-template-columns:72px minmax(0,1fr);padding:14px 12px;gap:12px}
+ .teacher-page .booking-heading h3{font-size:18px}
+ .teacher-page .booking-card .question-preview{font-size:13px}
+ .teacher-page .booking-card .booking-contact{font-size:12px}
+ .teacher-page .booking-card .agenda-actions button{font-size:13px;min-height:44px}
+ .teacher-page .booking-time span,.teacher-page .booking-time small{font-size:11px}
+ .teacher-page .view-tabs button{font-size:14px;min-height:44px}
+ .teacher-page .timeline-period{font-size:12px}
+ .teacher-page .timeline-period time{font-size:11px}
+ .teacher-page .overview-chip{font-size:10px}
+ .teacher-page .compact .booking-contact,.teacher-page .compact .question-preview{font-size:12px}
+}
