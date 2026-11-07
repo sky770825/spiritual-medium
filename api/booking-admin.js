@@ -1,5 +1,6 @@
 const {queueNotification,dispatchNotification}=require('../server/booking-line');
 const store=require('../server/booking-store');
+const {issueBinding}=require('../server/line-binding');
 const {validateConfig,transition,addBlock,archiveBooking,maxDurationFor,setReturning,fail}=require('../server/scheduling');
 const {send,body,origin,equal,secret,cookie,authenticated,client,handleError}=require('../server/booking-api');
 module.exports=async(req,res)=>{try{
@@ -19,6 +20,7 @@ module.exports=async(req,res)=>{try{
    try{const r=await fetch('https://api.line.me/v2/bot/info',{headers:{Authorization:'Bearer '+process.env.LINE_CHANNEL_ACCESS_TOKEN},signal:AbortSignal.timeout(8000)});const d=r.ok?await r.json():{};if(!r.ok||d.basicId!=='@740ihcar')return send(res,200,{ok:true,lineReady:false,reason:r.ok?'wrong_official_account':'line_http_'+r.status});const v=await fetch('https://api.line.me/v2/bot/message/validate/push',{method:'POST',headers:{Authorization:'Bearer '+process.env.LINE_CHANNEL_ACCESS_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({messages:[{type:'text',text:'預約通知連線檢查（僅驗證格式，不傳送）'}]}),signal:AbortSignal.timeout(8000)});return send(res,200,{ok:true,lineReady:v.ok,reason:v.ok?'ready':'line_validate_http_'+v.status});}catch{return send(res,200,{ok:true,lineReady:false,reason:'network_unknown'});}
   }
   const result=await store.mutate(s=>{
+   if(input.action==='binding-link')return issueBinding(s,input.id);
    if(input.action==='config'){if(input.version!==s.version)fail('其他裝置已更新，請重新整理後再儲存',409);s.config=validateConfig(input.config);return {saved:true};}
    if(input.action==='status'){const b=transition(s,input.id,input.status);queueNotification(b);return {id:b.id,status:b.status};}
    if(input.action==='retry-notification'){const b=s.bookings.find(x=>x.id===input.id);if(!b?.notification||b.notification.forStatus!==b.status)fail('沒有可重送的通知',409);return {id:b.id,status:b.status};}
@@ -32,7 +34,7 @@ module.exports=async(req,res)=>{try{
  if(req.method==='GET'){
   if(!authenticated(req))fail('請先登入預約管理',401);
   const {state}=await store.read();
-  return send(res,200,{ok:true,lineNotificationsConfigured:Boolean(process.env.LINE_CHANNEL_ACCESS_TOKEN),rosterUrl:process.env.BOOKING_GOOGLE_SHEET_URL||null,version:state.version,serverNow:Date.now(),config:state.config,blocks:state.blocks,bookings:state.bookings.map(({fingerprint,requestId,...b})=>({...b,returningAllowed:maxDurationFor(state,b.lineIdentity)>30,notification:b.notification?(({text,owner,...n})=>n)(b.notification):null,status:b.status==='pending'&&b.expiresAt<=Date.now()?'expired':b.status}))});
+  return send(res,200,{ok:true,lineNotificationsConfigured:Boolean(process.env.LINE_CHANNEL_ACCESS_TOKEN),rosterUrl:process.env.BOOKING_GOOGLE_SHEET_URL||null,version:state.version,serverNow:Date.now(),config:state.config,blocks:state.blocks,bookings:state.bookings.map(({fingerprint,requestId,lineBinding,...b})=>({...b,returningAllowed:maxDurationFor(state,b.lineIdentity)>30,notification:b.notification?(({text,owner,...n})=>n)(b.notification):null,status:b.status==='pending'&&b.expiresAt<=Date.now()?'expired':b.status}))});
  }
  res.setHeader('Allow','GET, POST');send(res,405,{ok:false,error:'不支援的操作'});
  }catch(e){handleError(res,e);}};

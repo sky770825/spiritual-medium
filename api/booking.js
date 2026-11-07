@@ -14,6 +14,7 @@ module.exports=async(req,res)=>{try{
  if(req.method==='POST'){
   origin(req);const input=await body(req);if(input.website)fail('無法接受此預約');
   const identity=await verifyIdentity(input);
+  if(!identity)fail('請先登入LINE並勾選身分綁定，再送出預約；若無法登入請透過官方LINE人工預約',401);
   if(input.action==='eligibility'){if(!identity)fail('請先登入LINE並勾選身分綁定',401);const {state}=await store.read();return send(res,200,{ok:true,maxDuration:maxDurationFor(state,identity),returning:maxDurationFor(state,identity)>30});}
   const booking=await store.mutate(s=>reserve(s,input,Date.now(),client(req),identity));
   return send(res,201,{ok:true,booking:{id:booking.id,date:booking.date,time:booking.time,endAt:booking.endAt,startAt:booking.startAt,duration:booking.duration,price:booking.price,status:booking.status==='pending'&&booking.expiresAt<Date.now()?'expired':booking.status,lineBound:Boolean(booking.lineIdentity),expiresAt:booking.expiresAt}});
