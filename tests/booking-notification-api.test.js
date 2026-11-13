@@ -17,7 +17,7 @@ test('full API path: verified booking -> approve -> accepted -> cancel -> accept
   assert.equal((await call(admin,{action:'status',id,status:'confirmed'},false)).status,401);
   assert.equal((await call(admin,{action:'status',id,status:'confirmed'})).status,200);assert.equal(state.bookings[0].notification.state,'accepted');assert.equal(pushes.length,1);assert.equal(pushes[0].body.to,uid);assert.ok(!JSON.stringify(pushes).includes('PRIVATE'));
   await call(admin,{action:'retry-notification',id});assert.equal(pushes.length,1);
-  await call(admin,{action:'status',id,status:'cancelled'});assert.equal(pushes.length,2);assert.notEqual(pushes[0].key,pushes[1].key);assert.match(pushes[1].body.messages[0].text,/已取消/);
+  await call(admin,{action:'status',id,status:'cancelled'});assert.equal(pushes.length,2);assert.notEqual(pushes[0].key,pushes[1].key);assert.match(pushes[1].body.messages[0].altText,/已取消/);
   await call(admin,{action:'archive',id,archived:true});assert.ok(state.bookings[0].archivedAt);await call(admin,{action:'archive',id,archived:false});assert.equal(state.bookings[0].archivedAt,undefined);
   const publicData=await call(booking,null,false);assert.equal(JSON.stringify(publicData).includes(uid),false);assert.equal(JSON.stringify(publicData).includes('PRIVATE'),false);
   const privateData=await call(admin,null);assert.equal(privateData.data.bookings[0].lineIdentity.userId,uid);assert.equal(privateData.data.bookings[0].notification.text,undefined);

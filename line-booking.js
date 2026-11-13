@@ -1,7 +1,8 @@
 (function(root){
+ const presentation=typeof module==='object'&&module.exports?require('./booking-message'):root.bookingMessage;
  const LIFF_ID='2012387050-7GZmUUJ4';
  function canSend(inClient,context,permissions,consent){return Boolean(inClient&&context?.type==='utou'&&permissions.includes('chat_message.write')&&consent);}
- function notificationText(b,name){return ['【新預約申請・待老師確認】','宇宙玉皇大帝原始大天尊無上至尊',`預約編號：${b.id}`,`姓名：${name}`,`時間：${b.date} ${b.time}（台北時間）`,`時長：${b.duration}分鐘｜NT$${b.price}`,'請老師在預約管理行事曆核對並確認。'].join('\n');}
+ function notificationText(b,name){return ['【新預約申請・待老師確認】','宇宙玉皇大帝原始大天尊無上至尊',`預約編號：${presentation.reference(b)}`,`姓名：${name}`,`時間：${b.date} ${b.time}（台北時間）`,`時長：${b.duration}分鐘｜NT$${b.price}`,'請老師在預約管理行事曆核對並確認。'].join('\n');}
  if(typeof module==='object'&&module.exports){module.exports={canSend,notificationText};return;}
  const redirectUri=()=>location.origin+'/reserve.html';
  let sdk=null,inClient=false,context=null,permissions=[],sent=new Set();

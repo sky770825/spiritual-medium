@@ -52,7 +52,8 @@ function reserve(s,r,now=Date.now(),client='unknown',lineIdentity=null){
  s.rate=(s.rate||[]).filter(x=>x.at>now-3600000);
  if(s.rate.filter(x=>x.client===client).length>=5)fail('預約申請較頻繁，請稍後再試或聯絡LINE',429);
  const active=s.bookings.filter(b=>(lineIdentity?b.lineIdentity?.userId===lineIdentity.userId:b.contact===contact)&&b.startAt>now&&occupying(b,now));if(active.length>=2)fail('已有兩筆未來預約，請先透過LINE確認',429);
- const booking={id:randomUUID(),requestId:r.requestId,fingerprint,name,contact,signature,question,date:r.date,time:r.time,duration:r.duration,price:r.duration/10*300,...slot,status:'pending',createdAt:now,expiresAt:Math.min(now+24*3600000,slot.startAt),...(lineIdentity?{lineIdentity}:{}),consentVersion:'2026-11-05-v2',signedDate:dateString(now)};
+ let id;do{id=randomUUID();}while(s.bookings.some(b=>String(b.id).replace(/-/g,'').slice(0,12).toUpperCase()===id.replace(/-/g,'').slice(0,12).toUpperCase()));
+ const booking={id,requestId:r.requestId,fingerprint,name,contact,signature,question,date:r.date,time:r.time,duration:r.duration,price:r.duration/10*300,...slot,status:'pending',createdAt:now,expiresAt:Math.min(now+24*3600000,slot.startAt),...(lineIdentity?{lineIdentity}:{}),consentVersion:'2026-11-05-v2',signedDate:dateString(now)};
  s.bookings.push(booking);s.rate.push({client,at:now});return booking;
 }
 function transition(s,id,status,now=Date.now()){

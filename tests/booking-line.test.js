@@ -13,7 +13,7 @@ test('identity comes only from server verified token with explicit consent; reje
 });
 function setup(bound=true){const b={id:'test',name:'姓名',date:'2026-11-06',time:'14:00',duration:10,price:300,status:'confirmed',question:'PRIVATE',contact:'PRIVATE',...(bound?{lineIdentity:{userId:uid,consentedAt:1}}:{})};queueNotification(b);const state={bookings:[b]};let tail=Promise.resolve();const store={mutate:fn=>{const p=tail.then(()=>fn(state));tail=p.catch(()=>{});return p;}};return {b,store};}
 test('approval queue persists, concurrent sends claim once, accepted never means read, excludes private content',async()=>{
- const {b,store}=setup();let calls=0;const deps={token:'secret',fetch:async(url,opts)=>{calls++;assert.equal(JSON.parse(opts.body).to,uid);assert.equal(opts.headers['X-Line-Retry-Key'],b.notification.key);return ok({});}};
+ const {b,store}=setup();let calls=0;const deps={token:'secret',fetch:async(url,opts)=>{calls++;assert.equal(JSON.parse(opts.body).to,uid);assert.equal(JSON.parse(opts.body).messages[0].type,'flex');assert.equal(opts.headers['X-Line-Retry-Key'],b.notification.key);return ok({});}};
  await Promise.all([dispatchNotification(store,b.id,deps),dispatchNotification(store,b.id,deps)]);assert.equal(calls,1);assert.equal(b.notification.state,'accepted');assert.equal(b.notification.readAt,undefined);assert.ok(!notificationText(b).includes('PRIVATE'));
  await dispatchNotification(store,b.id,deps);assert.equal(calls,1);
 });
