@@ -16,6 +16,11 @@ module.exports=async(req,res)=>{try{
   }
   if(!authenticated(req))fail('請先登入預約管理',401);
   if(input.action==='logout'){res.setHeader('Set-Cookie','booking_admin=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');return send(res,200,{ok:true});}
+  if(input.action==='line-quota'){
+   const token=process.env.LINE_CHANNEL_ACCESS_TOKEN;if(!token)fail('官方帳號通知尚未設定',503);
+   const results=await Promise.all(['/quota','/quota/consumption'].map(async path=>{const r=await fetch('https://api.line.me/v2/bot/message'+path,{headers:{Authorization:'Bearer '+token},signal:AbortSignal.timeout(8000)});if(!r.ok)fail('LINE用量查詢失敗 HTTP '+r.status,503);return r.json();}));
+   return send(res,200,{ok:true,quota:{type:results[0].type,limit:results[0].value??null,used:results[1].totalUsage??null}});
+  }
   if(input.action==='line-health'){
    if(!process.env.LINE_CHANNEL_ACCESS_TOKEN)return send(res,200,{ok:true,lineReady:false,reason:'not_configured'});
    try{const r=await fetch('https://api.line.me/v2/bot/info',{headers:{Authorization:'Bearer '+process.env.LINE_CHANNEL_ACCESS_TOKEN},signal:AbortSignal.timeout(8000)});const d=r.ok?await r.json():{};if(!r.ok||d.basicId!=='@740ihcar')return send(res,200,{ok:true,lineReady:false,reason:r.ok?'wrong_official_account':'line_http_'+r.status});const v=await fetch('https://api.line.me/v2/bot/message/validate/push',{method:'POST',headers:{Authorization:'Bearer '+process.env.LINE_CHANNEL_ACCESS_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({messages:['confirmed','cancelled','pending'].map(status=>message({id:'12345678-abcd-4321-bbbb-111111111111',date:'2026-11-14',time:'19:00',duration:30,price:900,status}))}),signal:AbortSignal.timeout(8000)});return send(res,200,{ok:true,lineReady:v.ok,reason:v.ok?'ready':'line_validate_http_'+v.status});}catch{return send(res,200,{ok:true,lineReady:false,reason:'network_unknown'});}

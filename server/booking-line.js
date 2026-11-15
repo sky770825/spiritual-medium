@@ -31,7 +31,9 @@ async function dispatchNotification(store,id,{fetch:request=fetch,token=process.
  let result;try{
   const response=await request('https://api.line.me/v2/bot/message/push',{method:'POST',headers:{Authorization:`Bearer ${token}`,'Content-Type':'application/json','X-Line-Retry-Key':claim.key},body:JSON.stringify({to:claim.to,messages:[claim.message||{type:'text',text:claim.text}]}),signal:AbortSignal.timeout(8000)});
   const accepted=response.ok||response.status===409&&Boolean(response.headers.get('x-line-accepted-request-id'));
-  result=accepted?{state:'accepted',acceptedAt:Date.now()}:{state:'failed',error:'line_http_'+response.status};
+  let error='line_http_'+response.status;
+  if(response.status===429){let detail;try{detail=await response.json();}catch{}const text=typeof detail?.message==='string'?detail.message:'';if(/monthly limit/i.test(text))error='line_monthly_limit';else if(/rate limit/i.test(text))error='line_rate_limit';}
+  result=accepted?{state:'accepted',acceptedAt:Date.now()}:{state:'failed',error};
  }catch{result={state:'failed',error:'network_unknown'};}
  await store.mutate(s=>{const n=s.bookings.find(x=>x.id===id)?.notification;if(n?.key===claim.key&&n.owner===owner){Object.assign(n,result);delete n.owner;delete n.leaseUntil;}return null;});
 }
