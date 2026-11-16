@@ -8,19 +8,15 @@ module.exports = async function adminReplies(req, res) {
     return res.end();
   }
 
-  if (!requireAdmin(req, res)) {
+  if (!await requireAdmin(req, res)) {
     return;
   }
 
   if (req.method === "GET") {
-    const config = await loadReplyConfig({ fresh: true });
-    return sendJson(res, 200, {
-      ok: true,
-      config,
-      repo: process.env.GITHUB_REPO || "sky770825/spiritual-medium",
-      branch: process.env.GITHUB_BRANCH || "main",
-      writable: Boolean(process.env.GITHUB_TOKEN),
-    });
+    try {
+      const config = await loadReplyConfig({ fresh: true });
+      return sendJson(res, 200, {ok:true,config,repo:process.env.GITHUB_REPO || "sky770825/spiritual-medium",branch:process.env.GITHUB_BRANCH || "main",writable:Boolean(process.env.GITHUB_TOKEN)});
+    } catch {return sendJson(res,503,{ok:false,error:"暫時無法讀取回覆規則，請稍後重試"});}
   }
 
   if (req.method === "PUT" || req.method === "POST") {
@@ -35,10 +31,10 @@ module.exports = async function adminReplies(req, res) {
         url: result.github?.commit?.html_url || "",
       });
     } catch (error) {
-      console.error(error);
-      return sendJson(res, 500, {
+      console.error("reply rule save failed", error.name);
+      return sendJson(res, error.status===413?413:500, {
         ok: false,
-        error: error.message || "Unable to save reply rules",
+        error: error.status===413?"資料太長":"無法儲存回覆規則，請檢查設定或稍後重試",
       });
     }
   }

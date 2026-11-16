@@ -57,8 +57,8 @@ module.exports = async function lineWebhook(req, res) {
   try {
     rawBody = await readRawBody(req);
   } catch (error) {
-    console.error(error);
-    return sendJson(res, 400, { ok: false, error: "Unable to read request body" });
+    console.error("webhook request rejected", error.name);
+    return sendJson(res, error.status===413?413:400, { ok: false, error: "Unable to read request body" });
   }
 
   const signature = req.headers["x-line-signature"];
@@ -72,7 +72,7 @@ module.exports = async function lineWebhook(req, res) {
   try {
     payload = rawBody ? JSON.parse(rawBody) : {};
   } catch (error) {
-    console.error(error);
+    console.error("webhook request rejected", error.name);
     return sendJson(res, 400, { ok: false, error: "Invalid JSON payload" });
   }
 

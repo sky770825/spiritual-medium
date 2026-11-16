@@ -2,7 +2,7 @@ const { requireAdmin } = require("../../server/adminAuth");
 const { sendJson } = require("../../server/http");
 
 module.exports = async function adminHealth(req, res) {
-  if (!requireAdmin(req, res)) {
+  if (!await requireAdmin(req, res)) {
     return;
   }
 

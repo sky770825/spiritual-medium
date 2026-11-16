@@ -423,20 +423,20 @@
   <div class="shell">
     <aside class="sidebar">
       <div class="brand">
-        <h1>宇宙通靈師<span>LINE 回覆後台</span></h1>
+        <h1>LINE 回覆規則<span>網站 Webhook 專用後台</span></h1>
         <a href="calendar.html" style="color:#d4af37">前往預約行事曆 →</a>
         <i data-lucide="sparkles"></i>
       </div>
 
       <div class="login">
-        <input id="adminPassword" type="password" autocomplete="current-password" placeholder="管理密碼">
+        <input id="adminPassword" aria-label="LINE回覆後台管理密碼" type="password" autocomplete="current-password" placeholder="管理密碼">
         <button class="button" id="loadButton" type="button">
           <i data-lucide="log-in"></i>
           登入讀取
         </button>
       </div>
 
-      <div class="status" id="statusBox">尚未載入規則。</div>
+      <p style="font-size:13px;line-height:1.8">此頁管理網站 Webhook 回覆規則，與預約行事曆分開登入。官方帳號原生自動回應，請至 <a href="https://manager.line.biz/account/@740ihcar/autoresponse" target="_blank" rel="noopener">LINE 官方管理平台</a> 操作；是否生效取決於目前啟用的回應方式。</p><div class="status" id="statusBox">尚未載入規則。</div>
       <button class="button secondary" id="addRuleButton" type="button" disabled>
         <i data-lucide="plus"></i>
         新增規則
@@ -597,7 +597,7 @@
       saving: false,
     };
 
-    elements.adminPassword.value = sessionStorage.getItem("spiritualAdminPassword") || "";
+    try { sessionStorage.removeItem("spiritualAdminPassword"); } catch {} // Never persist administrator passwords.
 
     function authHeaders() {
       return {
@@ -636,7 +636,7 @@
         return;
       }
 
-      sessionStorage.setItem("spiritualAdminPassword", elements.adminPassword.value.trim());
+      // Credentials remain only in the password field for this page session.
       state.config = payload.config;
       state.selectedId = state.config.rules[0]?.id || "";
       setStatus(`已載入 ${state.config.rules.length} 則規則。資料來源：${payload.repo} / ${payload.branch}`);

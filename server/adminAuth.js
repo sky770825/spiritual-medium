@@ -21,7 +21,7 @@ function secureEqual(left, right) {
   );
 }
 
-function requireAdmin(req, res) {
+async function requireAdmin(req, res) {
   const adminPassword = process.env.ADMIN_PASSWORD || "";
 
   if (!adminPassword) {
@@ -32,7 +32,19 @@ function requireAdmin(req, res) {
     return false;
   }
 
-  if (!secureEqual(extractBearerToken(req), adminPassword)) {
+  const valid = secureEqual(extractBearerToken(req), adminPassword);
+  const {client}=require('./booking-api');
+  const key='reply-login-'+client(req),now=Date.now();
+  try {
+    const allowed=await require('./booking-store').mutate(s=>{
+      s.rate=(s.rate||[]).filter(x=>x.at>now-3600000);
+      if(s.rate.filter(x=>x.client===key&&x.at>now-900000).length>=8)return false;
+      if(!valid)s.rate.push({client:key,at:now});return true;
+    });
+    if(!allowed){sendJson(res,429,{ok:false,error:'登入嘗試過多，請15分鐘後再試'});return false;}
+  } catch {sendJson(res,503,{ok:false,error:'登入驗證暫時無法連線，請稍後再試'});return false;}
+
+  if (!valid) {
     sendJson(res, 401, {
       ok: false,
       error: "Unauthorized",
