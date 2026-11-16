@@ -1,6 +1,6 @@
 (()=>{
  const key='booking-manage-mode',$=id=>document.getElementById(id);let active=false,busy=false;
- try{const params=new URLSearchParams(location.hash.slice(1));if(params.has('bind')){sessionStorage.removeItem(key);return;}active=params.has('manage')||sessionStorage.getItem(key)==='1';if(!active)return;sessionStorage.setItem(key,'1');sessionStorage.removeItem('booking-line-binding');}catch{if(!active)return;}
+ try{const params=new URLSearchParams(location.hash.slice(1));if(params.has('bind')||new URLSearchParams(location.search).has('new')){sessionStorage.removeItem(key);return;}active=params.has('manage')||sessionStorage.getItem(key)==='1';if(!active)return;sessionStorage.setItem(key,'1');sessionStorage.removeItem('booking-line-binding');}catch{if(!active)return;}
  document.body.classList.add('manage-mode');$('self-panel').hidden=false;$('line-access').open=true;document.querySelector('.event-profile h1').textContent='管理我的預約';
  $('self-exit').addEventListener('click',()=>{try{sessionStorage.removeItem(key);}catch{}});
  function text(tag,value){const n=document.createElement(tag);n.textContent=value;return n;}
