@@ -1,3 +1,4 @@
+const {decideChange}=require('../server/booking-changes');
 const {message}=require('../booking-message');
 const {queueNotification,dispatchNotification}=require('../server/booking-line');
 const store=require('../server/booking-store');
@@ -26,6 +27,8 @@ module.exports=async(req,res)=>{try{
    try{const r=await fetch('https://api.line.me/v2/bot/info',{headers:{Authorization:'Bearer '+process.env.LINE_CHANNEL_ACCESS_TOKEN},signal:AbortSignal.timeout(8000)});const d=r.ok?await r.json():{};if(!r.ok||d.basicId!=='@740ihcar')return send(res,200,{ok:true,lineReady:false,reason:r.ok?'wrong_official_account':'line_http_'+r.status});const v=await fetch('https://api.line.me/v2/bot/message/validate/push',{method:'POST',headers:{Authorization:'Bearer '+process.env.LINE_CHANNEL_ACCESS_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({messages:['confirmed','cancelled','pending'].map(status=>message({id:'12345678-abcd-4321-bbbb-111111111111',date:'2026-11-14',time:'19:00',duration:30,price:900,status}))}),signal:AbortSignal.timeout(8000)});return send(res,200,{ok:true,lineReady:v.ok,reason:v.ok?'ready':'line_validate_http_'+v.status});}catch{return send(res,200,{ok:true,lineReady:false,reason:'network_unknown'});}
   }
   const result=await store.mutate(s=>{
+   if(input.action==='reschedule-review'){const b=decideChange(s,input);queueNotification(b);return {id:b.id,status:b.status};}
+   if(input.action==='contact'){const b=s.bookings.find(x=>x.id===input.id);if(!b)fail('找不到預約',404);if(typeof input.phone!=='string'||input.phone.length>24||input.phone&&!/^\+?[0-9 ()-]{6,24}$/.test(input.phone))fail('聯絡電話格式不正確');if(input.updatedAt!==(b.updatedAt||b.createdAt))fail('資料已更新，請重新整理',409);b.phone=input.phone.trim();b.updatedAt=Date.now();return {id:b.id};}
    if(input.action==='binding-link')return issueBinding(s,input.id);
    if(input.action==='config'){if(input.version!==s.version)fail('其他裝置已更新，請重新整理後再儲存',409);s.config=validateConfig(input.config);return {saved:true};}
    if(input.action==='status'){const b=transition(s,input.id,input.status);queueNotification(b);return {id:b.id,status:b.status};}
@@ -35,7 +38,7 @@ module.exports=async(req,res)=>{try{
    if(input.action==='block')return addBlock(s,input);
    if(input.action==='unblock'){if(!s.blocks.some(b=>b.id===input.id))fail('封鎖已移除',404);s.blocks=s.blocks.filter(b=>b.id!==input.id);return {saved:true};}
    fail('操作不正確');
-  });let notificationDeferred=false;if(['status','retry-notification'].includes(input.action)){try{await dispatchNotification(store,result.id);}catch{notificationDeferred=true;}}return send(res,200,{ok:true,result,notificationDeferred});
+  });let notificationDeferred=false;if(['status','retry-notification','reschedule-review'].includes(input.action)){try{await dispatchNotification(store,result.id);}catch{notificationDeferred=true;}}return send(res,200,{ok:true,result,notificationDeferred});
  }
  if(req.method==='GET'){
   if(!authenticated(req))fail('請先登入預約管理',401);

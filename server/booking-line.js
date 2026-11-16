@@ -13,7 +13,7 @@ async function verifyIdentity(input,{fetch:request=fetch,channelId=process.env.L
 }
 function notificationText(b){return [`【預約${b.status==='confirmed'?'已核准':'已取消'}】`,'宇宙玉皇大帝原始大天尊無上至尊',`預約編號：${reference(b)}`,`時間：${b.date} ${b.time}（台北時間）`,`時長：${b.duration}分鐘｜NT$${b.price}`,b.status==='confirmed'?'老師已確認此時段，請準時透過官方LINE聯繫。服務結束後付費。':'此預約已取消，原時段已釋出。如需重新預約，請聯繫官方LINE。'].join('\n');}
 function queueNotification(b,now=Date.now()){
- if(!['confirmed','cancelled'].includes(b.status)){if(b.notification&&['queued','failed','sending'].includes(b.notification.state)){b.notification.state='superseded';delete b.notification.owner;delete b.notification.leaseUntil;}return;}
+ if(!['confirmed','cancelled'].includes(b.status)&&!(b.status==='pending'&&b.reschedule?.state==='rejected')){if(b.notification&&['queued','failed','sending'].includes(b.notification.state)){b.notification.state='superseded';delete b.notification.owner;delete b.notification.leaseUntil;}return;}
  b.notification={key:randomUUID(),forStatus:b.status,state:b.lineIdentity?.userId&&b.lineIdentity?.consentedAt?'queued':'manual',createdAt:now,attempts:0,text:notificationText(b),message:message(b)};
 }
 async function dispatchNotification(store,id,{fetch:request=fetch,token=process.env.LINE_CHANNEL_ACCESS_TOKEN}={}){
