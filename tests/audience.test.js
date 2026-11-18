@@ -1,7 +1,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),{recordEvents,audience,createDraft,dispatch}=require('../server/audience'),{empty}=require('../server/audience-store');
 const now=Date.parse('2026-11-19T02:00:00+08:00'),one='U'+'a'.repeat(32),two='U'+'b'.repeat(32);
 const event=(id,type,at,unblocked=false)=>({type,timestamp:at,source:{type:'user',userId:id},follow:{isUnblocked:unblocked}});
-const input={since:'2026-10-15',title:'公告',text:'有空可以預約',bookingButton:true};
+const input={excludeRecentDays:0,since:'2026-10-15',title:'公告',text:'有空可以預約',bookingButton:true};
 function state(){const s=empty();recordEvents(s,[event(one,'follow',now-1000)],now);return s;}
 function store(s){return {read:async()=>({state:structuredClone(s)}),mutate:async fn=>{const c=structuredClone(s),r=fn(c);Object.assign(s,c);return r;}};}
 const response=(d,status=200,headers={})=>({ok:status>=200&&status<300,status,headers:{get:k=>headers[k]},json:async()=>d});
