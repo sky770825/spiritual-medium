@@ -6,13 +6,13 @@ function sendJson(res, status, payload) {
   res.end(JSON.stringify(payload));
 }
 
-function readRawBody(req) {
+function readRawBody(req, {streamOnly=false}={}) {
   const limit=1024*1024;
   function checked(value){if(Buffer.byteLength(value)>limit){const e=new Error('Request body too large');e.status=413;throw e;}return value;}
   if(Number(req.headers?.['content-length']||0)>limit)return Promise.reject(Object.assign(new Error('Request body too large'),{status:413}));
   // Vercel exposes parsed JSON through a lazy getter and restores the original stream.
   // Read that stream before touching the getter so signatures use the original bytes.
-  const lazyBody=Boolean(Object.getOwnPropertyDescriptor(req,'body')?.get);
+  const lazyBody=(streamOnly&&typeof req.on==='function')||Boolean(Object.getOwnPropertyDescriptor(req,'body')?.get);
   if(!lazyBody&&typeof req.body==='string')return Promise.resolve().then(()=>checked(req.body));
   if(!lazyBody&&Buffer.isBuffer(req.body))return Promise.resolve().then(()=>checked(req.body.toString('utf8')));
   if(!lazyBody&&req.body!==undefined)return Promise.resolve().then(()=>checked(JSON.stringify(req.body)));
