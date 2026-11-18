@@ -65,6 +65,21 @@
    content.append(bindingButton,help);
   }
   const controls=text('div','','agenda-actions');const choices=b.status==='pending'?[['confirmed','確認預約'],['cancelled','取消']]:b.status==='confirmed'?[['active','開始交流'],['cancelled','取消']]:b.status==='active'?[['completed','結束交流'],['cancelled','取消']]:[];
+  if(!b.archivedAt&&['pending','confirmed'].includes(b.status)&&b.startAt>now()&&!(b.status==='pending'&&b.expiresAt<=now())){
+   const edit=text('button','更改預約','main-action');edit.type='button';
+   edit.addEventListener('click',()=>{
+    const old=content.querySelector('.teacher-edit');if(old){old.remove();return;}
+    const form=document.createElement('form');form.className='teacher-edit reschedule-request';
+    const dateLabel=text('label','新日期'),dateInput=document.createElement('input'),slotLabel=text('label','新時間'),select=document.createElement('select'),help=text('p','選擇日期後載入可用時段。','field-help'),save=text('button','確認改期並通知客戶','main-action'),close=text('button','關閉','small-button');
+    dateInput.type='date';dateInput.required=true;dateInput.min=day(now());dateInput.max=day(now()+(state.config.horizonDays-1)*86400000);dateInput.value=b.date;
+    dateLabel.append(dateInput);slotLabel.append(select);select.required=true;save.type='submit';save.disabled=true;close.type='button';close.addEventListener('click',()=>form.remove());
+    form.append(text('h4','更改預約時間'),text('p',`原預約：${b.date} ${b.time}–${clock(b.endAt)}`),text('p',`維持 ${b.duration} 分鐘・NT$${b.price}。確認後成立並通知客戶。`),dateLabel,slotLabel,help,save,close);
+    let serial=0;async function slots(){const version=++serial;save.disabled=true;select.replaceChildren();form.querySelector('.operation-confirm')?.remove();help.textContent='正在查詢空檔…';try{const d=await api({action:'edit-slots',id:b.id,date:dateInput.value});if(version!==serial||!form.isConnected)return;for(const slot of d.slots.filter(x=>dateInput.value!==b.date||x.time!==b.time)){const option=text('option',slot.time+'–'+slot.end);option.value=slot.time;select.append(option);}save.disabled=!select.options.length;help.textContent=select.options.length?'僅顯示可用時段，儲存時會再次檢查。':'當天沒有其他可用時段，請另選日期。';}catch(e){if(version===serial)help.textContent=e.message;}}
+    dateInput.addEventListener('change',slots);select.addEventListener('change',()=>form.querySelector('.operation-confirm')?.remove());
+    form.addEventListener('submit',e=>{e.preventDefault();if(save.disabled||!select.value)return;const chosenDate=dateInput.value,chosenTime=select.value;confirmOperation(form,`確定將 ${b.date} ${b.time} 改至 ${chosenDate} ${chosenTime}，並通知客戶？`,()=>action({action:'edit-booking',id:b.id,updatedAt:b.updatedAt||b.createdAt,date:chosenDate,time:chosenTime}));});
+    content.append(form);dateInput.focus();slots();
+   });controls.append(edit);
+  }
   for(const [status,title]of choices){const button=text('button',title,status==='cancelled'?'cancel-action':'main-action');if(status==='active'){button.dataset.startBooking=b.id;button.title='到預約開始時間才可啟動，並須先結束上一場';}button.addEventListener('click',()=>status==='cancelled'?confirmOperation(controls,'取消後會釋出時段並通知客戶，確定取消？',()=>action({action:'status',id:b.id,status})):action({action:'status',id:b.id,status}));controls.append(button);}if(['cancelled','expired','completed'].includes(b.status)){const archive=text('button',b.archivedAt?'還原紀錄':'移除紀錄（可還原）','small-button');archive.addEventListener('click',()=>action({action:'archive',id:b.id,archived:!b.archivedAt}));controls.append(archive);}content.append(controls);card.append(timebox,content);return card;
  }
  $('enable-sound').addEventListener('click',async()=>{try{audio=audio||new(window.AudioContext||window.webkitAudioContext)();await audio.resume();alerted.clear();$('enable-sound').textContent='提示音已啟用';}catch{$('enable-sound').textContent='此瀏覽器無法啟用提示音';}});
@@ -72,5 +87,5 @@
  function populateSettings(){settingsVersion=state.version;$('weekly-settings').replaceChildren();for(let i=0;i<7;i++){const row=text('div','','schedule-row'),label=text('label','週'+['日','一','二','三','四','五','六'][i]);label.htmlFor='weekly-'+i;const input=document.createElement('input');input.id='weekly-'+i;input.value=(state.config.weekly[i]||[]).map(w=>w.start+'-'+w.end).join(', ');input.placeholder='休息';row.append(label,input);$('weekly-settings').append(row);}$('booking-enabled').checked=state.config.enabled;$('buffer-minutes').value=state.config.bufferMinutes;$('lead-minutes').value=state.config.leadMinutes;$('horizon-days').value=state.config.horizonDays;$('latest-start').value=state.config.latestStartTime||'23:00';}
  $('settings-form').addEventListener('submit',e=>{e.preventDefault();const weekly={};try{for(let i=0;i<7;i++){const raw=$('weekly-'+i).value.trim();weekly[i]=raw?raw.split(/[,，]/).map(part=>{const pair=part.trim().split(/[-–]/).map(x=>x.trim());if(pair.length!==2)throw Error('時段請填寫如14:00-18:00,19:00-21:00');return {start:pair[0],end:pair[1]};}):[];}action({action:'config',version:settingsVersion,config:{enabled:$('booking-enabled').checked,weekly,bufferMinutes:Number($('buffer-minutes').value),leadMinutes:Number($('lead-minutes').value),horizonDays:Number($('horizon-days').value),latestStartTime:$('latest-start').value}});}catch(err){$('admin-status').textContent=err.message;}});
  $('block-form').addEventListener('submit',e=>{e.preventDefault();action({action:'block',date:$('block-date').value,start:$('block-start').value,end:$('block-end').value,reason:$('block-reason').value});});
- load(true);setInterval(()=>{if(state&&!busy&&!document.hidden)load(false);},30000);
+ load(true);setInterval(()=>{if(state&&!busy&&!document.hidden&&!document.querySelector('.teacher-edit'))load(false);},30000);
 })();

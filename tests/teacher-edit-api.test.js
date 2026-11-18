@@ -1,0 +1,12 @@
+const test=require('node:test'),assert=require('node:assert/strict'),{randomUUID}=require('node:crypto');
+test('teacher edit API requires admin, exposes available slots, moves once and queues Flex',async()=>{
+ const store=require('../server/booking-store'),auth=require('../server/booking-api'),{defaultState,reserve,dateString}=require('../server/scheduling');
+ const saved={read:store.read,mutate:store.mutate,password:process.env.BOOKING_ADMIN_PASSWORD,secret:process.env.BOOKING_SESSION_SECRET,token:process.env.LINE_CHANNEL_ACCESS_TOKEN};
+ process.env.BOOKING_ADMIN_PASSWORD='test';process.env.BOOKING_SESSION_SECRET='s'.repeat(48);delete process.env.LINE_CHANNEL_ACCESS_TOKEN;
+ let s=defaultState(),now=Date.now(),date,slots=[];for(let i=1;i<8&&!slots.length;i++){date=dateString(now+i*86400000);slots=require('../server/scheduling').slotsForDay(s,date,20,now);}
+ const b=reserve(s,{requestId:randomUUID(),name:'Test',contact:'Test',signature:'Test',date,time:slots[0].time,duration:20,consent:true},now,'test',{userId:'U'+'a'.repeat(32),consentedAt:now});b.status='confirmed';
+ store.read=async()=>({state:structuredClone(s)});store.mutate=async fn=>{const next=structuredClone(s),result=fn(next);s=next;return result;};let cookie;auth.cookie({setHeader(k,v){cookie=v.split(';')[0];}});
+ const handler=require('../api/booking-admin');async function call(body,authorized=true){let data;const res={setHeader(){},end(raw){data=JSON.parse(raw);}};await handler({method:'POST',headers:{host:'test.local',origin:'https://test.local',cookie:authorized?cookie:''},body},res);return {http:res.statusCode,data};}
+ try{assert.equal((await call({action:'edit-slots',id:b.id,date},false)).http,401);assert.equal((await call({action:'edit-slots',id:b.id,date})).data.slots.length,slots.length);const input={action:'edit-booking',id:b.id,date,time:slots[1].time,updatedAt:b.updatedAt||b.createdAt};assert.equal((await call(input)).http,200);assert.equal(s.bookings[0].time,slots[1].time);assert.equal(s.bookings[0].notification.state,'failed');assert.equal(s.bookings[0].notification.message.type,'flex');assert.equal((await call(input)).http,409);}
+ finally{store.read=saved.read;store.mutate=saved.mutate;for(const [key,value]of Object.entries({BOOKING_ADMIN_PASSWORD:saved.password,BOOKING_SESSION_SECRET:saved.secret,LINE_CHANNEL_ACCESS_TOKEN:saved.token})){if(value===undefined)delete process.env[key];else process.env[key]=value;}}
+});

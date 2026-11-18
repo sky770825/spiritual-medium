@@ -16,5 +16,12 @@ function decideChange(s,input,now=Date.now()){
  if(input.approved){const slot=available(s,b,r.date,now).find(x=>x.time===r.time);if(!slot)fail('新時段已被預約或不再開放；原預約保留，請聯絡客戶另選時間',409);b.scheduleHistory=[...(b.scheduleHistory||[]),{date:b.date,time:b.time,startAt:b.startAt,endAt:b.endAt,changedAt:now}].slice(-20);b.date=r.date;Object.assign(b,slot);b.status='confirmed';}
  r.state=input.approved?'approved':'rejected';r.decidedAt=now;b.updatedAt=now;return b;
 }
+function teacherChange(s,input,now=Date.now()){
+ const b=editable(s,input.id,now);
+ if(input.updatedAt!==(b.updatedAt||b.createdAt))fail('資料已更新，請重新整理後再更改',409);
+ if(b.reschedule?.state==='pending')fail('請先處理客戶的改期申請，再由老師更改時間',409);
+ requestChange(s,b,input,now);b.reschedule.source='teacher';
+ return decideChange(s,{id:b.id,requestId:b.reschedule.id,approved:true},now);
+}
 function cancelOwn(s,b,now=Date.now()){return transition(s,b.id,'cancelled',now);}
-module.exports={editable,owner,available,requestChange,decideChange,cancelOwn};
+module.exports={teacherChange,editable,owner,available,requestChange,decideChange,cancelOwn};
