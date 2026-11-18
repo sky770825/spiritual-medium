@@ -17,3 +17,17 @@ Private Blob `booking/audience-v1.json`與預約狀態隔離，共用ETag CAS。
 驗證：`npm test` 68項；`tests/dev-audience-server.js`提供隔離示範，內建假LINE回應且無production憑證，不會發真訊息。2026-11-19正式LINE Flex格式驗證通過；同步正確的既有Channel secret後，LINE官方空事件簽章驗證及private Blob寫入實測成功。320/390/768/1280px正式頁無橫向溢出，正式0受眾時發送按鈕停用。未經指定訊息及對象，不對真客戶發送驗收群發。
 
 官方依據：https://developers.line.biz/en/reference/messaging-api/nojs/（follow、demographic filters、multicast、retry key及webhook endpoint test）；https://raw.githubusercontent.com/vercel/vercel/main/packages/node/src/serverless-functions/helpers.ts（lazy body getter與原始stream還原）。
+
+## 2026-11-19 客戶名單與精準排除升級
+
+老師後台新增「客戶名單」：依已驗證LINE UID合併非封存預約，未綁定分開顯示且不群發，已標記的系統驗收資料不列入。支援姓名／LINE名稱／電話搜尋、服務與聯絡狀態篩選、20人分頁、最近提交及下一場預約、跳回行事曆。新客／回訪由既有服務紀錄及老師設定判斷，非加入好友日。電話使用最新提交紀錄的值，不從舊紀錄補回已清空的電話。
+
+聯絡進度可設未分類／待聯絡／已聯絡，另有「暫停群發」；暫停只限制公告，不影響既有預約核准／取消通知。設定儲存在private audience Blob的customerProfiles，更新檢查profileVersion，API用已存在的預約ID解析客戶，不能由前端指定UID。
+
+受眾來源保留預設「好友加入日期有紀錄」，另增「已綁定的預約客戶」。後者依任一符合起始提交日期的預約篩選，不代表加入好友日，也不保證仍為好友。兩者均可按服務／聯絡標籤篩選，並一律排除已知封鎖與暫停群發。
+
+預設排除有效未來預約／未過期暫留，以及近7天曾嘗試公告群發的人；單人測試不計入此近期排除。可選0/1/3/7/14/30天，並明確顯示各項互斥排除人數。包含結果待確認或已嘗試但失敗的群發，以保守避免重送；這不是已讀或送達名單。
+
+草稿仍是不可變快照。發送前重新讀預約狀態，在audience CAS租約內重驗標籤、封鎖、暫停及其他群發紀錄；快照內有人不再符合時拒絕整筆，要求重建預覽，不偷偷改收件人。預約Blob與audience Blob為兩份資料，因此跨Blob讀取並非同一個原子交易；讀取後瞬間出現的新預約仍有極短競態範圍。不同受眾條件不會共用未發送草稿；同內容同收件人的已嘗試紀錄仍沿用舊發送編號。
+
+77項測試通過。隔離UI實測標籤／暫停儲存、不同來源、3人排除成1人、模擬發送後變0人；正式UI可讀名單、原值儲存及跳回單筆預約。320/390/768/1280px無橫向溢出。沒有對真實客戶群發。正式當下16位客戶（15已綁定），預約客戶預設排除5位未來預約後為10位；此為即時狀態，不保證後續固定。
