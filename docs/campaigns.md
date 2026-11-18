@@ -14,6 +14,6 @@ Private Blob `booking/audience-v1.json`與預約狀態隔離，共用ETag CAS。
 
 發送前讀LINE用量，額度不足或用量無法核對時不發送。此為查詢當下數值，其他系統同時發送可能改變額度；LINE仍是最終用量判定者。介面不回傳群發UID或憑證；同源POST及登入驗證，Webhook簽章驗證原始bytes（Vercel lazy getter不可先JSON解析）。
 
-驗證：`npm test` 67項；`tests/dev-audience-server.js`提供隔離示範，內建假LINE回應且無production憑證，不會發真訊息。正式LINE格式驗證與空事件連線驗證需另核對實際結果。未經指定訊息及對象，不對真客戶發送驗收群發。
+驗證：`npm test` 68項；`tests/dev-audience-server.js`提供隔離示範，內建假LINE回應且無production憑證，不會發真訊息。2026-11-19正式LINE Flex格式驗證通過；同步正確的既有Channel secret後，LINE官方空事件簽章驗證及private Blob寫入實測成功。320/390/768/1280px正式頁無橫向溢出，正式0受眾時發送按鈕停用。未經指定訊息及對象，不對真客戶發送驗收群發。
 
 官方依據：https://developers.line.biz/en/reference/messaging-api/nojs/（follow、demographic filters、multicast、retry key及webhook endpoint test）；https://raw.githubusercontent.com/vercel/vercel/main/packages/node/src/serverless-functions/helpers.ts（lazy body getter與原始stream還原）。
