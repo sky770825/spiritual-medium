@@ -1,4 +1,4 @@
-const {decideChange,teacherChange,editable,available}=require('../server/booking-changes');
+const {decideChange,teacherChange,teacherAvailable,editable}=require('../server/booking-changes');
 const {message}=require('../booking-message');
 const {queueNotification,dispatchNotification}=require('../server/booking-line');
 const store=require('../server/booking-store');
@@ -26,7 +26,7 @@ module.exports=async(req,res)=>{try{
    if(!process.env.LINE_CHANNEL_ACCESS_TOKEN)return send(res,200,{ok:true,lineReady:false,reason:'not_configured'});
    try{const r=await fetch('https://api.line.me/v2/bot/info',{headers:{Authorization:'Bearer '+process.env.LINE_CHANNEL_ACCESS_TOKEN},signal:AbortSignal.timeout(8000)});const d=r.ok?await r.json():{};if(!r.ok||d.basicId!=='@740ihcar')return send(res,200,{ok:true,lineReady:false,reason:r.ok?'wrong_official_account':'line_http_'+r.status});const v=await fetch('https://api.line.me/v2/bot/message/validate/push',{method:'POST',headers:{Authorization:'Bearer '+process.env.LINE_CHANNEL_ACCESS_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({messages:['confirmed','cancelled','pending'].map(status=>message({id:'12345678-abcd-4321-bbbb-111111111111',date:'2026-11-14',time:'19:00',duration:30,price:900,status}))}),signal:AbortSignal.timeout(8000)});return send(res,200,{ok:true,lineReady:v.ok,reason:v.ok?'ready':'line_validate_http_'+v.status});}catch{return send(res,200,{ok:true,lineReady:false,reason:'network_unknown'});}
   }
-  if(input.action==='edit-slots'){const {state}=await store.read();const b=editable(state,input.id,Date.now());return send(res,200,{ok:true,slots:available(state,b,input.date)});}
+  if(input.action==='edit-slots'){const {state}=await store.read();const b=editable(state,input.id,Date.now());return send(res,200,{ok:true,slots:teacherAvailable(state,b,input.date,input.duration===undefined?b.duration:input.duration)});}
   const result=await store.mutate(s=>{
    if(input.action==='edit-booking'){const b=teacherChange(s,input);queueNotification(b);return {id:b.id,status:b.status};}
    if(input.action==='reschedule-review'){const b=decideChange(s,input);queueNotification(b);return {id:b.id,status:b.status};}
